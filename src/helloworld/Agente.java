@@ -96,7 +96,7 @@ public class Agente extends SingleAgent {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
         }                
 }
-
+//git
     @Override
     public AgentID getAid() {
         return super.getAid(); //To change body of generated methods, choose Tools | Templates.
