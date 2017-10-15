@@ -32,9 +32,16 @@ public class Agente extends SingleAgent {
     //public void init();
     @Override
     public void execute(){
-        System.out.println("\nHola Mundo soy un agente llamado " + this.getName());
-
+        
         ACLMessage outbox = new ACLMessage(); 
+        
+        
+        System.out.println("\n\n\nHola Mundo soy un agente llamado " + this.getName());
+
+        /**********************************************************************
+         * LOGIN
+         **********************************************************************/
+        
         outbox.setSender(this.getAid());
         outbox.setReceiver(new AgentID("Bellatrix"));       
         JSONObject jsonLogin=new JSONObject();
@@ -54,27 +61,52 @@ public class Agente extends SingleAgent {
         System.out.println(jsonLogin.toString());
         this.send(outbox);
        
-        ACLMessage inbox;
-        try {
-           
-            System.out.println("Recibiendo Traza");
-            inbox = this.receiveACLMessage();
-            System.out.println("Recibido mensaje " +inbox.getContent()+ " de "+inbox.getSender().getLocalName());
-              
-            JSONObject obj = new JSONObject(inbox.getContent());
+        JSONObject obj = this.getMessage();
+            
+        try{
             this.loginKey = obj.getString("result");
-            System.out.println(loginKey);
-            
-            
-
-            
-        } catch (InterruptedException ex) {
-            System.err.println("Error procesando traza");
+        }catch (JSONException ex) {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+        }   
+        System.out.println("Login Key: " + loginKey);
+         
+        
+        /**********************************************************************
+         * REFUEL
+         **********************************************************************/
+        
+        this.refuel();
+        
+        /**********************************************************************
+         * /MOVE
+         **********************************************************************/
+        
+        System.out.println("\n\nMoviendose");
+        outbox.setSender(this.getAid());
+        outbox.setReceiver(new AgentID("Bellatrix"));       
+        JSONObject jsonMove=new JSONObject();
+        
+        
+        try {
+            jsonMove.put("command", "moveNW");
+            jsonMove.put("key", this.loginKey);
         } catch (JSONException ex) {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        outbox.setContent(jsonMove.toString());
+        System.out.println(jsonMove.toString());
+        this.send(outbox);
+        
+        this.getMessage();
             
+        
+        /**********************************************************************
+         * LOGOUT
+         **********************************************************************/
+            
+       
+        System.out.println("\n\nLogout");
         JSONObject jsonLogout=new JSONObject();
         try {
             
@@ -86,15 +118,19 @@ public class Agente extends SingleAgent {
             this.send(outbox);
             
             System.out.println("Recibiendo Traza");
-            inbox = this.receiveACLMessage();
-            System.out.println("Recibido mensaje " +inbox.getContent()+ " de "+inbox.getSender().getLocalName());
-            System.out.println("My key es:" + this.loginKey);
+            ACLMessage inbox = this.receiveACLMessage();
+            System.out.println("Recibido mensaje " +inbox.getContent()+ " de "
+                    +inbox.getSender().getLocalName());
 
         } catch (JSONException ex) {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
-        }                
+        }
+        
+        /**********************************************************************
+         * LOGOUT
+         **********************************************************************/
 }
 //git
     @Override
@@ -102,5 +138,51 @@ public class Agente extends SingleAgent {
         return super.getAid(); //To change body of generated methods, choose Tools | Templates.
     }
     
+    /*
+    * @autor Daniel, Nacho
+    */
+    public JSONObject getMessage(){
+        JSONObject obj = null;
+        try {
+            System.out.println("Recibiendo Traza");
+            ACLMessage inbox = this.receiveACLMessage();
+            System.out.println("Recibido mensaje " +inbox.getContent()+ " de "
+                    +inbox.getSender().getLocalName());
+            obj = new JSONObject(inbox.getContent());
+         
+        } catch (InterruptedException ex) {
+            System.err.println("Error procesando traza");
+            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JSONException ex) {
+            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return obj;
+    }
+    
+    /*
+    * @author Nacho
+    */
+    public void refuel(){
+        
+        System.out.println("\n\nRefuel");
+        ACLMessage outbox = new ACLMessage(); 
+        outbox.setSender(this.getAid());
+        outbox.setReceiver(new AgentID("Bellatrix"));       
+        JSONObject jsonRefuel=new JSONObject();
+        
+        try {
+            jsonRefuel.put("command", "refuel");
+            jsonRefuel.put("key", this.loginKey);
+        } catch (JSONException ex) {
+            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        outbox.setContent(jsonRefuel.toString());
+        System.out.println(jsonRefuel.toString());
+        this.send(outbox);
+        
+        this.getMessage();
+    }
     
 }
