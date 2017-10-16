@@ -9,6 +9,7 @@ import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.SingleAgent;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jdk.nashorn.internal.parser.JSONParser;
@@ -85,10 +86,10 @@ public class Agente extends SingleAgent {
         outbox.setSender(this.getAid());
         outbox.setReceiver(new AgentID("Bellatrix"));       
         JSONObject jsonMove=new JSONObject();
-        
+        JSONObject message;
         
         try {
-            jsonMove.put("command", "moveNW");
+            jsonMove.put("command", "moveW");
             jsonMove.put("key", this.loginKey);
         } catch (JSONException ex) {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
@@ -98,9 +99,22 @@ public class Agente extends SingleAgent {
         System.out.println(jsonMove.toString());
         this.send(outbox);
         
-        this.getMessage();
+        message = this.getMessage();
+        /* * /
+        String [] array = null;
+        int [] arrayInt = null;
+        try {
+            array = message.getString("radar").split(",");
+        } catch (JSONException ex) {
+            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        for (int i = 0; i< array.length; i++){
+             arrayInt[i] = Integer.getInteger(array[i]);
+        }
+                        
+        int [][] matriz = transform(arrayInt, 5);
             
-        
+        /* */
         /**********************************************************************
          * LOGOUT
          **********************************************************************/
@@ -117,7 +131,7 @@ public class Agente extends SingleAgent {
             System.out.println(jsonLogout.toString());
             this.send(outbox);
             
-            System.out.println("Recibiendo Traza");
+            //System.out.println("Recibiendo Traza");
             ACLMessage inbox = this.receiveACLMessage();
             System.out.println("Recibido mensaje " +inbox.getContent()+ " de "
                     +inbox.getSender().getLocalName());
@@ -144,11 +158,24 @@ public class Agente extends SingleAgent {
     public JSONObject getMessage(){
         JSONObject obj = null;
         try {
-            System.out.println("Recibiendo Traza");
+            //System.out.println("Recibiendo Traza");
             ACLMessage inbox = this.receiveACLMessage();
             System.out.println("Recibido mensaje " +inbox.getContent()+ " de "
                     +inbox.getSender().getLocalName());
             obj = new JSONObject(inbox.getContent());
+            
+             if(obj.has("result") && !obj.get("result").equals("CRASHED") 
+                     && !obj.get("result").equals("BAD_COMMAND")
+                     && !obj.get("result").equals("BAD_PROTOCOL")
+                     && !obj.get("result").equals("BAD_KEY")){
+                 
+                 
+                 obj.accumulate("radar", this.getMessage().get("radar"));
+                 obj.accumulate("scanner", this.getMessage().get("scanner"));
+                 obj.accumulate("battery", this.getMessage().get("battery"));
+                 
+                 
+             }
          
         } catch (InterruptedException ex) {
             System.err.println("Error procesando traza");
@@ -183,6 +210,18 @@ public class Agente extends SingleAgent {
         this.send(outbox);
         
         this.getMessage();
+    }
+    
+    static int[][] transform(int[] arr, int N) {
+        int M = (arr.length + N - 1) / N;
+        int[][] mat = new int[M][];
+        int start = 0;
+        for (int r = 0; r < M; r++) {
+            int L = Math.min(N, arr.length - start);
+            mat[r] = java.util.Arrays.copyOfRange(arr, start, start + L);
+            start += L;
+        }
+        return mat;
     }
     
 }
