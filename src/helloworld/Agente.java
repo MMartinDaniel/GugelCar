@@ -16,6 +16,9 @@ import jdk.nashorn.internal.parser.JSONParser;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import com.eclipsesource.json.*;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 
 
 /**
@@ -130,22 +133,57 @@ public class Agente extends SingleAgent {
             outbox.setContent(jsonLogout.toString());
             System.out.println(jsonLogout.toString());
             this.send(outbox);
-            
-            //System.out.println("Recibiendo Traza");
-            ACLMessage inbox = this.receiveACLMessage();
-            System.out.println("Recibido mensaje " +inbox.getContent()+ " de "
-                    +inbox.getSender().getLocalName());
-
-        } catch (JSONException ex) {
-            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
+        }catch (JSONException ex) {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        /**********************************************************************
-         * LOGOUT
-         **********************************************************************/
+        this.getMessage();
+        
+        
+        //Generar traza en .png
+        try {
+            System.out.println("Recibiendo traza");
+            ACLMessage inbox = this.receiveACLMessage();
+            JsonObject injson = Json.parse(inbox.getContent()).asObject();
+            JsonArray ja = injson.get("trace").asArray();
+            byte data[] = new byte [ja.size()];
+            for(int i = 0; i<data.length; i++){
+                data[i] = (byte) ja.get(i).asInt();
+            }
+            FileOutputStream fos = new FileOutputStream("mitraza.png");
+            fos.write(data);
+            fos.close();
+            System.out.println("Traza Guardada en mitraza.png");
+            
+        } catch (InterruptedException | FileNotFoundException ex) {
+            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        /*Traza
+        ACLMessage inbox = null;
+        try {
+        inbox = this.receiveACLMessage();
+        } catch (InterruptedException ex) {
+        Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("\nTraza: " +inbox.getContent());
+         */    
+            /*Traza
+            ACLMessage inbox = null;
+            try {
+            inbox = this.receiveACLMessage();
+            } catch (InterruptedException ex) {
+            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            System.out.println("\nTraza: " +inbox.getContent());
+            */
+        
 }
+    
+/******************************************************************************
+ * Funciones
+ ******************************************************************************/
 //git
     @Override
     public AgentID getAid() {
