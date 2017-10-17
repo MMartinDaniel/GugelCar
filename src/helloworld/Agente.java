@@ -43,7 +43,7 @@ public class Agente extends SingleAgent {
         setDestinatario("Bellatrix");
         login();
         refuel();
-        makeMove();
+        makeMove("moveS");
         logout();    
         generarMapaTraza();    
 }
@@ -211,7 +211,7 @@ public class Agente extends SingleAgent {
         return true;  
     };
 
-    public boolean makeMove(){
+    public boolean makeMove(String movementCommand){
         
         System.out.println("\n\nMoviendose"); 
         setDestinatario("Bellatrix");
@@ -219,7 +219,7 @@ public class Agente extends SingleAgent {
         JSONObject message;
         
         try {
-            jsonMove.put("command", "moveW");
+            jsonMove.put("command", movementCommand);
             jsonMove.put("key", this.loginKey);
         } catch (JSONException ex) {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
