@@ -101,8 +101,6 @@ public class Agente extends SingleAgent {
         
         this.move("moveW");
         
-        // AQUI LLAMAR A LA FUNCION DE PARSEO
-        
         /* * /
         String [] array = null;
         int [] arrayInt = null;
