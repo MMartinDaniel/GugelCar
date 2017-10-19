@@ -330,4 +330,12 @@ public class Agente extends SingleAgent {
         System.out.println(this.nivelBateria);
     }
     
+    /*
+    * @author grego
+    */
+    
+    private void grego(){
+            
+    }
+    
 }
