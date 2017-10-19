@@ -188,6 +188,10 @@ public class Agente extends SingleAgent {
     }
     
     private void move(String direccion){
+        
+        /*
+        * @author nacho
+        */
         System.out.println("\n\nMoviendose");
         outbox.setSender(this.getAid());
         outbox.setReceiver(new AgentID("Bellatrix"));       
