@@ -176,6 +176,8 @@ public class Agente extends SingleAgent {
             System.out.println("\nTraza: " +inbox.getContent());
             */
         
+        //Prueba memoria
+        //this.InicializarMemoria();
 }
     
 /******************************************************************************
@@ -334,8 +336,21 @@ public class Agente extends SingleAgent {
     * @author grego
     */
     
-    private void grego(){
-            
+    //Inicializacion de memoria matriz 1000x1000 para no salirnos de los
+    //limites maximo de mapa 500x500
+    
+    public void InicializarMemoria(){
+        
+    ArrayList<ArrayList<Integer>> M = new ArrayList<ArrayList<Integer>>();
+    
+    for(int i = 0; i < 1000; i++){
+            M.add(new ArrayList<Integer>());
+        for (int j = 0; j < 1000; j++){
+           M.get(i).add(-1);
+        }
+        
+    }
+        System.out.println("Memoria Creada");
     }
     
 }
