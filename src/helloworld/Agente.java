@@ -42,65 +42,28 @@ public class Agente extends SingleAgent {
         // Variables que guardan las lecturas de los sensores. Se actualizan tras cada movimiento del GugelCar
         this.lecturaRadar = new int[5][5];
         this.lecturaScanner = new double[5][5];
-        this.nivelBateria = 0.0;
-        
+        this.nivelBateria = 0.0;  
         this.outbox = new ACLMessage();
+        System.out.println("\n\n\nHola Mundo soy un agente llamado " + this.getName());
+
     }
     
     //public void init();
     @Override
     public void execute(){
-        
-        //ACLMessage outbox = new ACLMessage(); 
-        
-        
-        System.out.println("\n\n\nHola Mundo soy un agente llamado " + this.getName());
 
-        /**********************************************************************
-         * LOGIN
-         **********************************************************************/
+         setDestinatario("Bellatrix");
+         login();
+        // refuel();
         
-        outbox.setSender(this.getAid());
-        outbox.setReceiver(new AgentID("Bellatrix"));       
-        JSONObject jsonLogin=new JSONObject();
-        
-        try {
-            jsonLogin.put("command", "login");
-            jsonLogin.put("world", "map1");
-            jsonLogin.put("radar", "agentep3");
-            jsonLogin.put("scanner", "agentep3");
-            jsonLogin.put("battery", "agentep3"); 
-            
-        } catch (JSONException ex) {
-            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+        boolean exit = false;
+        for (int i = 0; i < 2; i++) {
+               makeMove("moveW");
         }
 
-        outbox.setContent(jsonLogin.toString());
-        System.out.println(jsonLogin.toString());
-        this.send(outbox);
-       
-        JSONObject obj = this.getMessage();
-            
-        try{
-            this.loginKey = obj.getString("result");
-        }catch (JSONException ex) {
-            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
-        }   
-        System.out.println("Login Key: " + loginKey);
-         
-        
-        /**********************************************************************
-         * REFUEL
-         **********************************************************************/
-        
-        this.refuel();
-        
-        /**********************************************************************
-         * /MOVE
-         **********************************************************************/
-        
-        this.move("moveW");
-        
+        logout();    
+        generarMapaTraza();
+
         /* * /
         String [] array = null;
         int [] arrayInt = null;
@@ -116,66 +79,6 @@ public class Agente extends SingleAgent {
         int [][] matriz = transform(arrayInt, 5);
             
         /* */
-        /**********************************************************************
-         * LOGOUT
-         **********************************************************************/
-            
-       
-        System.out.println("\n\nLogout");
-        JSONObject jsonLogout=new JSONObject();
-        try {
-            
-            jsonLogout.put("command", "logout");
-            jsonLogout.put("key", loginKey);
-            
-            outbox.setContent(jsonLogout.toString());
-            System.out.println(jsonLogout.toString());
-            this.send(outbox);
-        }catch (JSONException ex) {
-            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        this.getMessage();
-        
-        //Generar traza en .png
-        try {
-            System.out.println("Recibiendo traza");
-            ACLMessage inbox = this.receiveACLMessage();
-            JsonObject injson = Json.parse(inbox.getContent()).asObject();
-            JsonArray ja = injson.get("trace").asArray();
-            byte data[] = new byte [ja.size()];
-            for(int i = 0; i<data.length; i++){
-                data[i] = (byte) ja.get(i).asInt();
-            }
-            FileOutputStream fos = new FileOutputStream("mitraza.png");
-            fos.write(data);
-            fos.close();
-            System.out.println("Traza Guardada en mitraza.png");
-            
-        } catch (InterruptedException | FileNotFoundException ex) {
-            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        /*Traza
-        ACLMessage inbox = null;
-        try {
-        inbox = this.receiveACLMessage();
-        } catch (InterruptedException ex) {
-        Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        System.out.println("\nTraza: " +inbox.getContent());
-         */    
-            /*Traza
-            ACLMessage inbox = null;
-            try {
-            inbox = this.receiveACLMessage();
-            } catch (InterruptedException ex) {
-            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            System.out.println("\nTraza: " +inbox.getContent());
-            */
-        
         //Prueba memoria
         //this.InicializarMemoria();
 }
@@ -187,42 +90,12 @@ public class Agente extends SingleAgent {
     @Override
     public AgentID getAid() {
         return super.getAid(); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    private void move(String direccion){
-        
-        /*
-        * @author nacho
-        */
-        System.out.println("\n\nMoviendose");
-        outbox.setSender(this.getAid());
-        outbox.setReceiver(new AgentID("Bellatrix"));       
-        JSONObject jsonMove=new JSONObject();
-        JSONObject message;
-        
-        try {
-            jsonMove.put("command", direccion);
-            jsonMove.put("key", this.loginKey);
-        } catch (JSONException ex) {
-            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        outbox.setContent(jsonMove.toString());
-        System.out.println(jsonMove.toString());
-        this.send(outbox);
-        
-        message = this.getMessage();
-        
-        // Tras cada movimiento del GugleCar, parsearemos la respuesta de los sensores
-        String respuesta = message.toString();
-        
-        Parseo(respuesta);
-    }
-    
+    }  
     /*
     * @autor Daniel, Nacho
     */
     public JSONObject getMessage(){
+        
         JSONObject obj = null;
         try {
             //System.out.println("Recibiendo Traza");
@@ -253,44 +126,6 @@ public class Agente extends SingleAgent {
         
         return obj;
     }
-    
-    /*
-    * @author Nacho
-    */
-    public void refuel(){
-        
-        System.out.println("\n\nRefuel");
-        ACLMessage outbox = new ACLMessage(); 
-        outbox.setSender(this.getAid());
-        outbox.setReceiver(new AgentID("Bellatrix"));       
-        JSONObject jsonRefuel=new JSONObject();
-        
-        try {
-            jsonRefuel.put("command", "refuel");
-            jsonRefuel.put("key", this.loginKey);
-        } catch (JSONException ex) {
-            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        outbox.setContent(jsonRefuel.toString());
-        System.out.println(jsonRefuel.toString());
-        this.send(outbox);
-        
-        this.getMessage();
-    }
-    
-    static int[][] transform(int[] arr, int N) {
-        int M = (arr.length + N - 1) / N;
-        int[][] mat = new int[M][];
-        int start = 0;
-        for (int r = 0; r < M; r++) {
-            int L = Math.min(N, arr.length - start);
-            mat[r] = java.util.Arrays.copyOfRange(arr, start, start + L);
-            start += L;
-        }
-        return mat;
-    }
-    
     /*
     * @author Ruben
     */
@@ -352,5 +187,170 @@ public class Agente extends SingleAgent {
     }
         System.out.println("Memoria Creada");
     }
+    
+
+    /*
+    * @author Nacho
+    */
+    public void refuel(){
+        
+        System.out.println("\n\nRefuel");
+        ACLMessage outbox = new ACLMessage(); 
+        outbox.setSender(this.getAid());
+        outbox.setReceiver(new AgentID("Bellatrix"));       
+        JSONObject jsonRefuel=new JSONObject();
+        
+        try {
+            jsonRefuel.put("command", "refuel");
+            jsonRefuel.put("key", this.loginKey);
+        } catch (JSONException ex) {
+            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        outbox.setContent(jsonRefuel.toString());
+        System.out.println(jsonRefuel.toString());
+        this.send(outbox);
+        
+        this.getMessage();
+    }
+    public void generarMapaTraza(){
+          try {
+           
+             System.out.println("Recibiendo traza");
+             ACLMessage inbox = this.receiveACLMessage();
+             JsonObject injson = Json.parse(inbox.getContent()).asObject();
+             JsonArray ja = injson.get("trace").asArray();
+             
+             byte data[] = new byte [ja.size()];
+             for(int i = 0; i<data.length; i++){
+                 data[i] = (byte) ja.get(i).asInt();
+             }
+             FileOutputStream fos = new FileOutputStream("mitraza.png");
+             fos.write(data);
+             fos.close();
+             System.out.println("Traza Guardada en mitraza.png");
+
+         } catch (InterruptedException | FileNotFoundException ex) {
+             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+         } catch (IOException ex) {
+             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+         }
+      }
+    static int[][] transform(int[] arr, int N) {
+      int M = (arr.length + N - 1) / N;
+      int[][] mat = new int[M][];
+      int start = 0;
+      for (int r = 0; r < M; r++) {
+          int L = Math.min(N, arr.length - start);
+          mat[r] = java.util.Arrays.copyOfRange(arr, start, start + L);
+          start += L;
+      }
+      return mat;
+  }
+
+     /*
+    * @author Dani
+    */
+    public void setDestinatario(String nombre){
+        outbox.setSender(this.getAid());
+        outbox.setReceiver(new AgentID(nombre));   
+    };
+    /*
+    * @author Dani
+    */
+    public boolean login(){
+ 
+        JSONObject jsonLogin=new JSONObject();
+        
+        try {
+            jsonLogin.put("command", "login");
+            jsonLogin.put("world", "map1");
+            jsonLogin.put("radar", "agentep3");
+            jsonLogin.put("scanner", "agentep3");
+            jsonLogin.put("battery", "agentep3"); 
+            
+        } catch (JSONException ex) {
+            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        outbox.setContent(jsonLogin.toString());
+        System.out.println(jsonLogin.toString());
+        this.send(outbox);
+       
+        JSONObject obj = this.getMessage();
+            
+        try{
+            this.loginKey = obj.getString("result");
+        }catch (JSONException ex) {
+            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        System.out.println("Login Key: " + loginKey);
+        return !"".equals(this.loginKey);
+        
+    };
+    
+        /*
+    * @author Dani
+    */
+    public boolean logout(){
+                
+        System.out.println("\n\nLogout");
+        JSONObject jsonLogout=new JSONObject();
+        try {   
+            jsonLogout.put("command", "logout");
+            jsonLogout.put("key", loginKey);
+            
+            outbox.setContent(jsonLogout.toString());
+            System.out.println(jsonLogout.toString());
+            this.send(outbox);
+        }catch (JSONException ex) {
+            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println(getMessage());
+        return true;  
+    };
+
+    public String nextMoveIs(JSONObject mensajeMov){
+       
+        try {
+        int[][] multi = new int[5][5];
+        String scannerMatrix = mensajeMov.getString("scanner");
+
+        String[] scannerMatrixArray = scannerMatrix.split(",");
+            System.out.println("");    
+  
+        } catch (JSONException ex) {
+            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       return mensajeMov.toString();
+    };
+    
+    
+    public String makeMove(String movementCommand){
+        
+        System.out.println("\n\nMoviendose"); 
+        setDestinatario("Bellatrix");
+        JSONObject jsonMove=new JSONObject();
+        JSONObject message;
+        
+        try {
+            jsonMove.put("command", movementCommand);
+            jsonMove.put("key", this.loginKey);
+        } catch (JSONException ex) {
+            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        outbox.setContent(jsonMove.toString());
+        System.out.println(jsonMove.toString());
+        this.send(outbox);
+        
+        message = this.getMessage();
+        String respuesta = message.toString();
+        Parseo(respuesta);
+        
+        return nextMoveIs(message);
+    };
+       
     
 }
