@@ -69,14 +69,14 @@ public class Agente extends SingleAgent {
         // refuel();
         
         boolean exit = false;
-        for (int i = 0; i < 10; i++) {
-               makeMove("moveW");
+        for (int i = 0; i < 49; i++) {
+               makeMove("moveSW");
         }
 
         logout();    
         generarMapaTraza();
         
-        //this.verMapa(9,9);
+        this.verMapa(151,151);
         
         /*
         String [] array = null;
