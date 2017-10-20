@@ -21,6 +21,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import javafx.util.Pair;
+
 
 
 /**
@@ -38,6 +42,36 @@ public class Agente extends SingleAgent {
     private ArrayList<ArrayList<Integer>> Mapa;
     private int MenY;
     private int MenX;
+    private ArrayList<Pair> Rastro;
+    
+    //Variables para visual
+    
+        /*
+        30 negro
+        31 rojo
+        32 verde
+        33 amarillo
+        34 azul
+        35 magenta
+        36 cyan
+        37 blanco
+        40 fondo negro
+        41 fondo rojo
+        42 fondo verde
+        43 fondo amarillo
+        44 fondo azul
+        45 fondo magenta
+        46 fondo cyan
+        47 fondo blanco
+        */
+        
+        private String ColorMenLibre ="\u001B[40m"; //40
+        private String ColorSinOstaculos =  "\u001B[47m";//47
+        private String ColorObstaculo= "\u001B[41m";//41
+        private String ColorCoche= "\u001B[45m";//45
+        private String ColorObjetivo= "\u001B[42m";//42
+        private String ColorRecorrido= "\u001B[46m";//46
+
 
     public Agente() throws Exception {
         super(null);
@@ -76,7 +110,9 @@ public class Agente extends SingleAgent {
         logout();    
         generarMapaTraza();
         
-        this.verMapa(151,151);
+        this.verMapaCoche(151,151);
+         // this.verMapa(151,151);
+
         
         /*
         String [] array = null;
@@ -192,7 +228,16 @@ public class Agente extends SingleAgent {
     //Nos posicionamos en el centro de la memoria
     this.MenY = 500;
     this.MenX = 500;
-
+    
+    this.Rastro = new ArrayList<Pair>();
+    Pair PosicionRastro = new Pair(MenX,MenY);
+    
+  
+    
+    this.Rastro.add(PosicionRastro);
+    
+    System.out.println(Rastro.get(0).getValue());
+    
     for(int i = 0; i < 1000; i++){
         this.Mapa.add(new ArrayList<Integer>());
             for (int j = 0; j < 1000; j++){
@@ -217,12 +262,86 @@ public class Agente extends SingleAgent {
         //Delimito el centro
         int L = l/2 + 500;
         int A = a/2 + 500;   
-
-
+        
+       
         //Muestro los datos del centro de la memoria
         for(int i = 500 - l/2 ; i < L; i++){
             for (int j = 500 - a/2; j < A; j++){
-                System.out.print(Mapa.get(i).get(j));
+                if(4 == Mapa.get(i).get(j)){
+                    System.out.print(ColorMenLibre + Mapa.get(i).get(j));
+        
+                }else if(1 == Mapa.get(i).get(j)){
+                
+                    System.out.print(ColorObstaculo + Mapa.get(i).get(j));
+
+                }else if(8 == Mapa.get(i).get(j)){
+                
+                    System.out.print(ColorCoche + Mapa.get(i).get(j));
+
+                }else if(2 == Mapa.get(i).get(j)){
+                
+                    System.out.print(ColorObjetivo + Mapa.get(i).get(j));
+
+                }else if(5 == Mapa.get(i).get(j)){
+                
+                    System.out.print(ColorRecorrido + Mapa.get(i).get(j));
+
+                }else{
+                    System.out.print( ColorSinOstaculos + Mapa.get(i).get(j));
+                    
+                }
+            }
+            System.out.println();
+        }
+
+    }
+    
+    /*
+    * @author grego
+    */
+    /*
+    *Visisualiza el mapa desde el coche
+    *@pre para obtener un dato real usar la funcion con numeros impares
+    *@param a {Ancho ncasillar} l {Alto ncasillas}
+    */
+    public void verMapaCoche(int a, int l){
+     
+     
+        //Delimito el centro
+        int L = l/2 + this.MenY ;
+        int A = a/2 + this.MenX;   
+
+  
+        
+
+        
+        
+        //Muestro los datos del centro de la memoria
+        for(int i = this.MenY  - l/2 ; i < L; i++){
+            for (int j = this.MenX - a/2; j < A; j++){
+                if(4 == Mapa.get(i).get(j)){
+                    System.out.print(ColorMenLibre + Mapa.get(i).get(j));
+        
+                }else if(1 == Mapa.get(i).get(j)){
+                
+                    System.out.print(ColorObstaculo + Mapa.get(i).get(j));
+
+                }else if(8 == Mapa.get(i).get(j)){
+                
+                    System.out.print(ColorCoche + Mapa.get(i).get(j));
+
+                }else if(2 == Mapa.get(i).get(j)){
+                
+                    System.out.print(ColorObjetivo + Mapa.get(i).get(j));
+
+                }else if(5 == Mapa.get(i).get(j)){
+                
+                    System.out.print(ColorRecorrido + Mapa.get(i).get(j));
+
+                }else{
+                    System.out.print( ColorSinOstaculos + Mapa.get(i).get(j));
+                    
+                }
             }
             System.out.println();
         }
@@ -239,6 +358,11 @@ public class Agente extends SingleAgent {
         //Contadores para la matriz del radar
         int conRadarI = 0;
         int conRadarJ = 0;
+        
+        //Añado la posicion del rastro
+        Pair PosicionRastro = new Pair(MenX,MenY);
+        Rastro.add(PosicionRastro);
+        
         
         //Ajusto mi posicion en funcion del movimiento
         if (movementCommand.equals("moveW") ){
@@ -292,11 +416,19 @@ public class Agente extends SingleAgent {
         
         // Ubico el coche en el mapa
         Mapa.get(this.MenY).set(this.MenX, 8);
+           
+    
+        //Rastro
+        
+        for(int i = 0; i < Rastro.size();i++){
+            Mapa.get((Integer)this.Rastro.get(i).getValue()).set((Integer) this.Rastro.get(i).getKey(), 5);
+        }
         
         System.out.println("------ACTUALIZADO---------");
         
         //Muestro el mapa
-        this.verMapa(40,40);
+        this.verMapaCoche(40,40);
+        //this.verMapa(40,40);
 
         
     }
