@@ -32,8 +32,17 @@ public class Agente extends SingleAgent {
     private int[][] lecturaRadar;
     private double[][] lecturaScanner;
     private double nivelBateria;
-    
     private ACLMessage outbox;
+    
+    //Variables para la memoria
+    private ArrayList<ArrayList<Integer>> Mapa;
+    private int MenY;
+    private int MenX;
+
+    public Agente() throws Exception {
+        super(null);
+    }
+
     
     public Agente(AgentID aid) throws Exception {
         super(aid);
@@ -45,7 +54,10 @@ public class Agente extends SingleAgent {
         this.nivelBateria = 0.0;  
         this.outbox = new ACLMessage();
         System.out.println("\n\n\nHola Mundo soy un agente llamado " + this.getName());
-
+        
+        //Prueba memoria
+        this.InicializarMemoria();
+        
     }
     
     //public void init();
@@ -57,14 +69,16 @@ public class Agente extends SingleAgent {
         // refuel();
         
         boolean exit = false;
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 10; i++) {
                makeMove("moveW");
         }
 
         logout();    
         generarMapaTraza();
-
-        /* * /
+        
+        //this.verMapa(9,9);
+        
+        /*
         String [] array = null;
         int [] arrayInt = null;
         try {
@@ -77,10 +91,7 @@ public class Agente extends SingleAgent {
         }
                         
         int [][] matriz = transform(arrayInt, 5);
-            
-        /* */
-        //Prueba memoria
-        //this.InicializarMemoria();
+        */
 }
     
 /******************************************************************************
@@ -172,20 +183,122 @@ public class Agente extends SingleAgent {
     */
     
     //Inicializacion de memoria matriz 1000x1000 para no salirnos de los
-    //limites maximo de mapa 500x500
+    //limites maximo de mapa 500x500 "4" indica memoria libre o mapa sin descubrir
     
-    public void InicializarMemoria(){
-        
-    ArrayList<ArrayList<Integer>> M = new ArrayList<ArrayList<Integer>>();
+    private void InicializarMemoria(){
+            
+    this.Mapa = new ArrayList<ArrayList<Integer>>();
     
+    //Nos posicionamos en el centro de la memoria
+    this.MenY = 500;
+    this.MenX = 500;
+
     for(int i = 0; i < 1000; i++){
-            M.add(new ArrayList<Integer>());
-        for (int j = 0; j < 1000; j++){
-           M.get(i).add(-1);
+        this.Mapa.add(new ArrayList<Integer>());
+            for (int j = 0; j < 1000; j++){
+                this.Mapa.get(i).add(4);
+            }
+    }
+    System.out.println("Tengo memoria");
+    }
+    
+    
+    /*
+    * @author grego
+    */
+    /*
+    *Visisualiza el mapa desde el centro de la memoria
+    *@pre para obtener un dato real usar la funcion con numeros impares
+    *@param a {Ancho ncasillar} l {Alto ncasillas}
+    */
+    public void verMapa(int a, int l){
+     
+     
+        //Delimito el centro
+        int L = l/2 + 500;
+        int A = a/2 + 500;   
+
+
+        //Muestro los datos del centro de la memoria
+        for(int i = 500 - l/2 ; i < L; i++){
+            for (int j = 500 - a/2; j < A; j++){
+                System.out.print(Mapa.get(i).get(j));
+            }
+            System.out.println();
+        }
+
+    }
+    
+    /*
+    * @author grego, kudry
+    */
+    
+   
+    public void actuMapa(String movementCommand){
+        
+        //Contadores para la matriz del radar
+        int conRadarI = 0;
+        int conRadarJ = 0;
+        
+        //Ajusto mi posicion en funcion del movimiento
+        if (movementCommand.equals("moveW") ){
+            this.MenX--;
+            System.out.println("Voy al Oeste");
+
+        }else if (movementCommand.equals("moveE")){
+            this.MenX++;
+            System.out.println("Voy al Este");    
+
+        }else if (movementCommand.equals("moveN")){
+            this.MenY--;
+            System.out.println("Voy al Norte");    
+
+        }else if (movementCommand.equals("moveS")){
+            this.MenY++;
+            System.out.println("Voy al Sur");    
+        }
+      
+        else if (movementCommand.equals("moveNW")){
+            this.MenX--;
+            this.MenY--;
+            System.out.println("Voy al NorOeste");    
+        
+        }else if (movementCommand.equals("moveNE")){
+            this.MenX++;
+            this.MenY--;
+            System.out.println("Voy al NorEste");    
+        
+        }else if (movementCommand.equals("moveSW")){
+            this.MenX--;
+            this.MenY++;
+            System.out.println("Voy al NorOeste");    
+        
+        }else if (movementCommand.equals("moveSE")){
+            this.MenX++;
+            this.MenY++;
+            System.out.println("Voy al NorOeste");    
+        }        
+
+        //Agrego la nueva informacion a la memoria
+        for(int i = this.MenY -2 ; i < this.MenY + 3; i++){
+            for (int j = this.MenX -2 ; j < this.MenX + 3; j++){
+                Mapa.get(i).set(j,this.lecturaRadar[conRadarI][conRadarJ]);
+                conRadarJ++;     
+            }
+            System.out.println();
+            conRadarI++;
+            conRadarJ = 0;     
         }
         
-    }
-        System.out.println("Memoria Creada");
+        // Ubico el coche en el mapa
+        Mapa.get(this.MenY).set(this.MenX, 8);
+        
+        System.out.println("------ACTUALIZADO---------");
+        
+        //Muestro el mapa
+        this.verMapa(40,40);
+
+        
     }
     
 
@@ -349,6 +462,9 @@ public class Agente extends SingleAgent {
         String respuesta = message.toString();
         Parseo(respuesta);
         
+        //Actualizacion de memoria pegamos en memoria la nueva traza del escaner
+        this.actuMapa(movementCommand); 
+
         return nextMoveIs(message);
     };
        
