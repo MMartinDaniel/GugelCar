@@ -100,11 +100,12 @@ public class Agente extends SingleAgent {
 
          setDestinatario("Bellatrix");
          login();
-        // refuel();
+         refuel();
         
         boolean exit = false;
-        for (int i = 0; i < 49; i++) {
-               makeMove("moveSW");
+        for (int i = 0; i < 47; i++) {
+               makeMove(followScanner());
+        
         }
 
         logout();    
@@ -427,7 +428,7 @@ public class Agente extends SingleAgent {
         System.out.println("------ACTUALIZADO---------");
         
         //Muestro el mapa
-        this.verMapaCoche(40,40);
+        //this.verMapaCoche(40,40);
         //this.verMapa(40,40);
 
         
@@ -456,8 +457,13 @@ public class Agente extends SingleAgent {
         System.out.println(jsonRefuel.toString());
         this.send(outbox);
         
-        this.getMessage();
+        String respuesta = this.getMessage().toString();
+        Parseo(respuesta);
     }
+    
+    /**
+     * @author ¿?¿?
+     */
     public void generarMapaTraza(){
           try {
            
@@ -481,6 +487,10 @@ public class Agente extends SingleAgent {
              Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
          }
       }
+    
+    /**
+     * @author ¿?¿?
+     */
     static int[][] transform(int[] arr, int N) {
       int M = (arr.length + N - 1) / N;
       int[][] mat = new int[M][];
@@ -556,6 +566,9 @@ public class Agente extends SingleAgent {
         return true;  
     };
 
+    /**
+     * @author Dani
+     */
     public String nextMoveIs(JSONObject mensajeMov){
        
         try {
@@ -571,7 +584,9 @@ public class Agente extends SingleAgent {
        return mensajeMov.toString();
     };
     
-    
+    /**
+     * @author Nacho
+     */
     public String makeMove(String movementCommand){
         
         System.out.println("\n\nMoviendose"); 
@@ -599,6 +614,111 @@ public class Agente extends SingleAgent {
 
         return nextMoveIs(message);
     };
+    
+    /**
+     * @author Nacho
+     */
+    public int getRadar (String direccion){
+        switch (direccion){
+            case "N" : return lecturaRadar[1][2];
+            case "NE" : return lecturaRadar[1][3];
+            case "E" : return lecturaRadar[2][3];
+            case "SE" : return lecturaRadar[3][3];
+            case "S" : return lecturaRadar[3][2];
+            case "SO" : return lecturaRadar[3][2];
+            case "O" : return lecturaRadar[2][1];
+            case "NO" : return lecturaRadar[1][1];
+        }
+        
+        return -1000;
+        
+    }
+
+    
+    /**
+     * @author Nacho
+     */
+    
+    public String followScanner(){
+        String nextMove = "";
+        
+        double n = lecturaScanner[1][2];
+        double ne = lecturaScanner[1][3];
+        double e = lecturaScanner[2][3];
+        double se = lecturaScanner[3][3];
+        double s = lecturaScanner[3][2];
+        double so = lecturaScanner[3][1];
+        double o = lecturaScanner[2][1];
+        double no = lecturaScanner[1][1];
+        
+        
+        if(n <= ne && n <= e && n <= se && n <= s && n <= so && n <= o && n <= no){
+            nextMove = "moveN";
+        }else if(ne <= n && ne <= e && ne <= se && ne <= s && ne <= so && ne <= o && ne <= no){
+            nextMove = "moveNE";
+        }else if(e <= n && e <= ne && e <= se && e <= s && e <= so && e <= o && e <= no){
+            nextMove = "moveE";
+        }else if(se <= n && se <= ne && se <= e && se <= s && se <= so && se <= o && se <= no){
+            nextMove = "moveSE";
+        }else if(s <= n && s <= ne && s <= e && s <= se && s <= so && s <= o && s <= no){
+            nextMove = "moveS";
+        }else if(so <= n && so <= ne && so <= e && so <= se && so <= s && so <= o && so <= no){
+            nextMove = "moveSW";
+        }else if(o <= n && o <= ne && o <= e && o <= se && o <= so && o <= s && o <= no){
+            nextMove = "moveW";
+        }else if(no <= n && no <= ne && no <= e && no <= se && no <= so && no <= o && no <= s){
+            nextMove = "moveNW";
+        }
+        
+        return nextMove;
+    }
+    
+    /*
+    posiciones array
+    n 12
+    ne 13
+    e 23
+    se 33
+    s 32
+    so 31
+    o 21
+    no 11  
+    */
        
+    
+    /*
+    * @author Daniel
+    */
+    
+    public boolean checkObstacle( String tryDirection ){
+
+            for (int i = 1; i <= 3; i++) {
+                for (int j = 1; j <= 3; j++) {
+                    System.out.print(lecturaRadar[i][j]);
+                }
+                System.out.println("");
+           }
+           
+           switch(tryDirection){
+               case "MoveN": if( getRadar("N") != 1 ){ return true;};
+               break;
+               case "moveNE": if( getRadar("NE") != 1 ){ return true;};
+               break;
+               case "moveS": if( getRadar("S") != 1 ){ return true;};
+               break; 
+               case "moveSE": if( getRadar("SE") != 1 ){ return true;};
+               break;
+               case "moveE":  if( getRadar("E") != 1 ){ return true;};
+               break;               
+               case "moveW":  if( getRadar("W") != 1 ){ return true;};
+               break; 
+               case "movSW":  if( getRadar("SW") != 1 ){ return true;};
+               break; 
+               case "moveNW": if( getRadar("NW") != 1 ){ return true;};
+               break;
+           }
+           
+       return false;
+    };
     
 }
