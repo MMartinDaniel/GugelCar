@@ -103,9 +103,8 @@ public class Agente extends SingleAgent {
          refuel();
         
         boolean exit = false;
-        for (int i = 0; i < 47; i++) {
+        while(!objetivo()){
                makeMove(followScanner());
-        
         }
 
         logout();    
@@ -139,7 +138,7 @@ public class Agente extends SingleAgent {
     public AgentID getAid() {
         return super.getAid(); //To change body of generated methods, choose Tools | Templates.
     }  
-    /*
+    /**
     * @autor Daniel, Nacho
     */
     public JSONObject getMessage(){
@@ -174,7 +173,7 @@ public class Agente extends SingleAgent {
         
         return obj;
     }
-    /*
+    /**
     * @author Ruben
     */
     private void Parseo(String respuesta){
@@ -215,7 +214,7 @@ public class Agente extends SingleAgent {
         System.out.println(this.nivelBateria);
     }
     
-    /*
+    /**
     * @author grego
     */
     
@@ -249,10 +248,9 @@ public class Agente extends SingleAgent {
     }
     
     
-    /*
+    /**
     * @author grego
-    */
-    /*
+    *
     *Visisualiza el mapa desde el centro de la memoria
     *@pre para obtener un dato real usar la funcion con numeros impares
     *@param a {Ancho ncasillar} l {Alto ncasillas}
@@ -297,10 +295,9 @@ public class Agente extends SingleAgent {
 
     }
     
-    /*
+    /**
     * @author grego
-    */
-    /*
+    *
     *Visisualiza el mapa desde el coche
     *@pre para obtener un dato real usar la funcion con numeros impares
     *@param a {Ancho ncasillar} l {Alto ncasillas}
@@ -349,7 +346,7 @@ public class Agente extends SingleAgent {
 
     }
     
-    /*
+    /**
     * @author grego, kudry
     */
     
@@ -435,7 +432,7 @@ public class Agente extends SingleAgent {
     }
     
 
-    /*
+    /**
     * @author Nacho
     */
     public void refuel(){
@@ -503,14 +500,14 @@ public class Agente extends SingleAgent {
       return mat;
   }
 
-     /*
+    /**
     * @author Dani
     */
     public void setDestinatario(String nombre){
         outbox.setSender(this.getAid());
         outbox.setReceiver(new AgentID(nombre));   
     };
-    /*
+    /**
     * @author Dani
     */
     public boolean login(){
@@ -545,7 +542,7 @@ public class Agente extends SingleAgent {
         
     };
     
-        /*
+    /**
     * @author Dani
     */
     public boolean logout(){
@@ -628,6 +625,7 @@ public class Agente extends SingleAgent {
             case "SO" : return lecturaRadar[3][2];
             case "O" : return lecturaRadar[2][1];
             case "NO" : return lecturaRadar[1][1];
+            case "coche" : return lecturaRadar[2][2];
         }
         
         return -1000;
@@ -686,7 +684,7 @@ public class Agente extends SingleAgent {
     */
        
     
-    /*
+    /**
     * @author Daniel
     */
     
@@ -721,4 +719,17 @@ public class Agente extends SingleAgent {
        return false;
     };
     
+    /**
+     * @author nacho
+     * @return 
+     */
+     public boolean objetivo(){
+        if(getRadar("coche") == 2){
+            return true;
+        }else{
+            return false;
+        }
+        
+    }
+     
 }
