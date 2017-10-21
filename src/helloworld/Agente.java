@@ -103,14 +103,20 @@ public class Agente extends SingleAgent {
          refuel();
         
         boolean exit = false;
-        while(!objetivo()){
-               makeMove(followScanner());
-        }
 
+        while(!objetivo()){
+               if(i % 20 == 0){ refuel();
+                System.out.println(availableMovements());
+                makeMove(followScanner(availableMovements()));
+               };
+        }
+    
+      
+       
         logout();    
         generarMapaTraza();
         
-        this.verMapaCoche(151,151);
+      // this.verMapaCoche(151,151);
          // this.verMapa(151,151);
 
         
@@ -516,7 +522,7 @@ public class Agente extends SingleAgent {
         
         try {
             jsonLogin.put("command", "login");
-            jsonLogin.put("world", "map1");
+            jsonLogin.put("world", "map2");
             jsonLogin.put("radar", "agentep3");
             jsonLogin.put("scanner", "agentep3");
             jsonLogin.put("battery", "agentep3"); 
@@ -563,23 +569,7 @@ public class Agente extends SingleAgent {
         return true;  
     };
 
-    /**
-     * @author Dani
-     */
-    public String nextMoveIs(JSONObject mensajeMov){
-       
-        try {
-        int[][] multi = new int[5][5];
-        String scannerMatrix = mensajeMov.getString("scanner");
 
-        String[] scannerMatrixArray = scannerMatrix.split(",");
-            System.out.println("");    
-  
-        } catch (JSONException ex) {
-            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
-        }
-       return mensajeMov.toString();
-    };
     
     /**
      * @author Nacho
@@ -609,7 +599,7 @@ public class Agente extends SingleAgent {
         //Actualizacion de memoria pegamos en memoria la nueva traza del escaner
         this.actuMapa(movementCommand); 
 
-        return nextMoveIs(message);
+        return respuesta;
     };
     
     /**
@@ -621,6 +611,7 @@ public class Agente extends SingleAgent {
             case "NE" : return lecturaRadar[1][3];
             case "E" : return lecturaRadar[2][3];
             case "SE" : return lecturaRadar[3][3];
+            case "coche" : return lecturaRadar[2][2]; 
             case "S" : return lecturaRadar[3][2];
             case "SO" : return lecturaRadar[3][2];
             case "O" : return lecturaRadar[2][1];
@@ -634,11 +625,36 @@ public class Agente extends SingleAgent {
 
     
     /**
-     * @author Nacho
+     * @author Nacho, Dani
      */
     
-    public String followScanner(){
+    public String followScanner(String posibleMovs){
+        
+        String[] movparts = posibleMovs.split(",");
         String nextMove = "";
+        int posX = 0;
+        int posY = 0;
+        double menor = 1000;
+        for (int i = 0; i < movparts.length; i = i+2) {
+            int x = Integer.parseInt(movparts[i]);
+            int y = Integer.parseInt(movparts[i+1]);
+            if(lecturaScanner[x][y] < menor){ menor = lecturaScanner[x][y];   posX = x; posY = y;};
+        }
+
+        if(posX == 1){
+            if(posY == 1){ nextMove = "moveNW";
+            }else if( posY == 2){ nextMove = "moveN";
+            }else if( posY == 3){ nextMove = "moveNE";}    
+        }else if ( posX == 2){
+            if(posY == 1){ return "moveW";
+            }else if( posY == 2){ nextMove = "dontMove";
+            }else if( posY == 3){ nextMove = "moveE";}    
+        }else if ( posX == 3){
+            if(posY == 1){ return "moveSW";
+            }else if( posY == 2){ nextMove = "moveS";
+            }else if( posY == 3){ nextMove = "moveSE";}    
+        }
+        /*
         
         double n = lecturaScanner[1][2];
         double ne = lecturaScanner[1][3];
@@ -648,7 +664,6 @@ public class Agente extends SingleAgent {
         double so = lecturaScanner[3][1];
         double o = lecturaScanner[2][1];
         double no = lecturaScanner[1][1];
-        
         
         if(n <= ne && n <= e && n <= se && n <= s && n <= so && n <= o && n <= no){
             nextMove = "moveN";
@@ -667,8 +682,9 @@ public class Agente extends SingleAgent {
         }else if(no <= n && no <= ne && no <= e && no <= se && no <= so && no <= o && no <= s){
             nextMove = "moveNW";
         }
-        
-        return nextMove;
+      */
+        System.out.println("NEXT MOVE:" + nextMove);
+       return nextMove;
     }
     
     /*
@@ -688,6 +704,20 @@ public class Agente extends SingleAgent {
     * @author Daniel
     */
     
+    
+        public String availableMovements(){
+            String availables = ""; 
+            for (int i = 1; i <= 3; i++) {
+                for (int j = 1; j <= 3; j++) {
+                    if(lecturaRadar[i][j] != 1 && i != j){
+                        availables = availables + i + "," + j + ",";
+                    }
+                }
+           }
+            
+          return availables;
+    };
+    
     public boolean checkObstacle( String tryDirection ){
 
             for (int i = 1; i <= 3; i++) {
@@ -696,7 +726,7 @@ public class Agente extends SingleAgent {
                 }
                 System.out.println("");
            }
-           
+            
            switch(tryDirection){
                case "MoveN": if( getRadar("N") != 1 ){ return true;};
                break;
