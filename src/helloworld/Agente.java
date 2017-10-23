@@ -21,10 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import javafx.util.Pair;
-
 
 
 /**
@@ -38,12 +35,19 @@ public class Agente extends SingleAgent {
     private double nivelBateria;
     private ACLMessage outbox;
     
+    //IMPLEMENTADO CLASE MEMORIA
     //Variables para la memoria
     private ArrayList<ArrayList<Integer>> Mapa;
     private int MenY;
     private int MenX;
     private ArrayList<Pair> Rastro;
     
+    //Pasos antes de recargar
+    private int Pasos;
+    
+    
+    
+    //IMPLEMENTADO CLASE MEMORIA
     //Variables para visual
     
         /*
@@ -89,8 +93,13 @@ public class Agente extends SingleAgent {
         this.outbox = new ACLMessage();
         System.out.println("\n\n\nHola Mundo soy un agente llamado " + this.getName());
         
+        //IMPLEMENTADO CLASE MEMORIA
         //Prueba memoria
         this.InicializarMemoria();
+        
+        this.Pasos = 0;
+        
+        //Mapa2.verMapaCoche(40, 40);
         
     }
     
@@ -104,13 +113,46 @@ public class Agente extends SingleAgent {
         
         boolean exit = false;
 
+        /*
         while(!objetivo()){
                if(i % 20 == 0){ refuel();
                 System.out.println(availableMovements());
                 makeMove(followScanner(availableMovements()));
                };
         }
-    
+        */
+        
+        makeMove("moveN");
+        
+        System.out.println("El Sur tiene= " + this.getS());
+        
+        /*
+        makeMove("moveN");
+        makeMove("moveN");
+        makeMove("moveN");
+        makeMove("moveS");
+        makeMove("moveS");
+        makeMove("moveN");
+        makeMove("moveN");
+        makeMove("moveS");
+        makeMove("moveS");
+        makeMove("moveN");
+        makeMove("moveN");
+        makeMove("moveS");
+        makeMove("moveS");
+        makeMove("moveS");
+        */
+        /*
+        makeMove("moveS");
+        makeMove("moveS");
+        makeMove("moveN");
+        makeMove("moveN");
+        makeMove("moveN");
+        makeMove("moveN");
+        makeMove("moveS");
+        makeMove("moveS");
+        */
+
       
        
         logout();    
@@ -220,222 +262,7 @@ public class Agente extends SingleAgent {
         System.out.println(this.nivelBateria);
     }
     
-    /**
-    * @author grego
-    */
-    
-    //Inicializacion de memoria matriz 1000x1000 para no salirnos de los
-    //limites maximo de mapa 500x500 "4" indica memoria libre o mapa sin descubrir
-    
-    private void InicializarMemoria(){
-            
-    this.Mapa = new ArrayList<ArrayList<Integer>>();
-    
-    //Nos posicionamos en el centro de la memoria
-    this.MenY = 500;
-    this.MenX = 500;
-    
-    this.Rastro = new ArrayList<Pair>();
-    Pair PosicionRastro = new Pair(MenX,MenY);
-    
-  
-    
-    this.Rastro.add(PosicionRastro);
-    
-    System.out.println(Rastro.get(0).getValue());
-    
-    for(int i = 0; i < 1000; i++){
-        this.Mapa.add(new ArrayList<Integer>());
-            for (int j = 0; j < 1000; j++){
-                this.Mapa.get(i).add(4);
-            }
-    }
-    System.out.println("Tengo memoria");
-    }
-    
-    
-    /**
-    * @author grego
-    *
-    *Visisualiza el mapa desde el centro de la memoria
-    *@pre para obtener un dato real usar la funcion con numeros impares
-    *@param a {Ancho ncasillar} l {Alto ncasillas}
-    */
-    public void verMapa(int a, int l){
-     
-     
-        //Delimito el centro
-        int L = l/2 + 500;
-        int A = a/2 + 500;   
-        
-       
-        //Muestro los datos del centro de la memoria
-        for(int i = 500 - l/2 ; i < L; i++){
-            for (int j = 500 - a/2; j < A; j++){
-                if(4 == Mapa.get(i).get(j)){
-                    System.out.print(ColorMenLibre + Mapa.get(i).get(j));
-        
-                }else if(1 == Mapa.get(i).get(j)){
-                
-                    System.out.print(ColorObstaculo + Mapa.get(i).get(j));
 
-                }else if(8 == Mapa.get(i).get(j)){
-                
-                    System.out.print(ColorCoche + Mapa.get(i).get(j));
-
-                }else if(2 == Mapa.get(i).get(j)){
-                
-                    System.out.print(ColorObjetivo + Mapa.get(i).get(j));
-
-                }else if(5 == Mapa.get(i).get(j)){
-                
-                    System.out.print(ColorRecorrido + Mapa.get(i).get(j));
-
-                }else{
-                    System.out.print( ColorSinOstaculos + Mapa.get(i).get(j));
-                    
-                }
-            }
-            System.out.println();
-        }
-
-    }
-    
-    /**
-    * @author grego
-    *
-    *Visisualiza el mapa desde el coche
-    *@pre para obtener un dato real usar la funcion con numeros impares
-    *@param a {Ancho ncasillar} l {Alto ncasillas}
-    */
-    public void verMapaCoche(int a, int l){
-     
-     
-        //Delimito el centro
-        int L = l/2 + this.MenY ;
-        int A = a/2 + this.MenX;   
-
-  
-        
-
-        
-        
-        //Muestro los datos del centro de la memoria
-        for(int i = this.MenY  - l/2 ; i < L; i++){
-            for (int j = this.MenX - a/2; j < A; j++){
-                if(4 == Mapa.get(i).get(j)){
-                    System.out.print(ColorMenLibre + Mapa.get(i).get(j));
-        
-                }else if(1 == Mapa.get(i).get(j)){
-                
-                    System.out.print(ColorObstaculo + Mapa.get(i).get(j));
-
-                }else if(8 == Mapa.get(i).get(j)){
-                
-                    System.out.print(ColorCoche + Mapa.get(i).get(j));
-
-                }else if(2 == Mapa.get(i).get(j)){
-                
-                    System.out.print(ColorObjetivo + Mapa.get(i).get(j));
-
-                }else if(5 == Mapa.get(i).get(j)){
-                
-                    System.out.print(ColorRecorrido + Mapa.get(i).get(j));
-
-                }else{
-                    System.out.print( ColorSinOstaculos + Mapa.get(i).get(j));
-                    
-                }
-            }
-            System.out.println();
-        }
-
-    }
-    
-    /**
-    * @author grego, kudry
-    */
-    
-   
-    public void actuMapa(String movementCommand){
-        
-        //Contadores para la matriz del radar
-        int conRadarI = 0;
-        int conRadarJ = 0;
-        
-        //Añado la posicion del rastro
-        Pair PosicionRastro = new Pair(MenX,MenY);
-        Rastro.add(PosicionRastro);
-        
-        
-        //Ajusto mi posicion en funcion del movimiento
-        if (movementCommand.equals("moveW") ){
-            this.MenX--;
-            System.out.println("Voy al Oeste");
-
-        }else if (movementCommand.equals("moveE")){
-            this.MenX++;
-            System.out.println("Voy al Este");    
-
-        }else if (movementCommand.equals("moveN")){
-            this.MenY--;
-            System.out.println("Voy al Norte");    
-
-        }else if (movementCommand.equals("moveS")){
-            this.MenY++;
-            System.out.println("Voy al Sur");    
-        }
-      
-        else if (movementCommand.equals("moveNW")){
-            this.MenX--;
-            this.MenY--;
-            System.out.println("Voy al NorOeste");    
-        
-        }else if (movementCommand.equals("moveNE")){
-            this.MenX++;
-            this.MenY--;
-            System.out.println("Voy al NorEste");    
-        
-        }else if (movementCommand.equals("moveSW")){
-            this.MenX--;
-            this.MenY++;
-            System.out.println("Voy al NorOeste");    
-        
-        }else if (movementCommand.equals("moveSE")){
-            this.MenX++;
-            this.MenY++;
-            System.out.println("Voy al NorOeste");    
-        }        
-
-        //Agrego la nueva informacion a la memoria
-        for(int i = this.MenY -2 ; i < this.MenY + 3; i++){
-            for (int j = this.MenX -2 ; j < this.MenX + 3; j++){
-                Mapa.get(i).set(j,this.lecturaRadar[conRadarI][conRadarJ]);
-                conRadarJ++;     
-            }
-            System.out.println();
-            conRadarI++;
-            conRadarJ = 0;     
-        }
-        
-        // Ubico el coche en el mapa
-        Mapa.get(this.MenY).set(this.MenX, 8);
-           
-    
-        //Rastro
-        
-        for(int i = 0; i < Rastro.size();i++){
-            Mapa.get((Integer)this.Rastro.get(i).getValue()).set((Integer) this.Rastro.get(i).getKey(), 5);
-        }
-        
-        System.out.println("------ACTUALIZADO---------");
-        
-        //Muestro el mapa
-        //this.verMapaCoche(40,40);
-        //this.verMapa(40,40);
-
-        
-    }
     
 
     /**
@@ -597,8 +424,11 @@ public class Agente extends SingleAgent {
         Parseo(respuesta);
         
         //Actualizacion de memoria pegamos en memoria la nueva traza del escaner
+        System.out.println("ME HE MOVIDO");
+        
         this.actuMapa(movementCommand); 
-
+        this.Autorefuel();
+        
         return respuesta;
     };
     
@@ -616,7 +446,7 @@ public class Agente extends SingleAgent {
             case "SO" : return lecturaRadar[3][2];
             case "O" : return lecturaRadar[2][1];
             case "NO" : return lecturaRadar[1][1];
-            case "coche" : return lecturaRadar[2][2];
+           // case "coche" : return lecturaRadar[2][2];
         }
         
         return -1000;
@@ -762,4 +592,373 @@ public class Agente extends SingleAgent {
         
     }
      
+
+     
+    /*
+     * @author grego
+     */
+     
+    private void Autorefuel(){
+        if(Pasos > 90){
+            this.refuel();
+            Pasos = 0;
+        }
+    }
+    
+     /*
+     *---------------------------------------------------------------------------
+     *Getter de consulta a nuestro alrededor en el mapa
+     *---------------------------------------------------------------------------
+     */
+    
+    /*
+    * @author grego
+    */
+    public int getN(){
+        int auxX = this.MenX;
+        int auxY = this.MenY - 1;
+        return Mapa.get(auxY).get(auxX);
+    }
+    /*
+    * @author grego
+    */
+    public int getS(){
+        int auxX = this.MenX;
+        int auxY = this.MenY + 1;
+        return Mapa.get(auxY).get(auxX);
+    }
+    
+    /*
+    * @author grego
+    */
+    public int getE(){
+        int auxX = this.MenX + 1;
+        int auxY = this.MenY;
+        return Mapa.get(auxY).get(auxX);
+    }
+    
+    /*
+    * @author grego
+    */
+    public int getW(){
+        int auxX = this.MenX - 1;
+        int auxY = this.MenY;
+        return Mapa.get(auxY).get(auxX);
+    }
+    /*
+    * @author grego
+    */
+    public int getNE(){
+        int auxX = this.MenX + 1;
+        int auxY = this.MenY - 1;
+        return Mapa.get(auxY).get(auxX);
+    }
+    
+    /*
+    * @author grego
+    */
+    public int getNW(){
+        int auxX = this.MenX - 1;
+        int auxY = this.MenY - 1;
+        return Mapa.get(auxY).get(auxX);
+    }
+    
+    /*
+    * @author grego
+    */
+    public int getSE(){
+        int auxX = this.MenX + 1;
+        int auxY = this.MenY + 1;
+        return Mapa.get(auxY).get(auxX);
+    }
+
+    /*
+    * @author grego
+    */
+    public int getSW(){
+        int auxX = this.MenX - 1;
+        int auxY = this.MenY + 1;
+        return Mapa.get(auxY).get(auxX);
+    }    
+    
+     
+     
+     /*
+     *---------------------------------------------------------------------------
+     *FUNCIONES DE LA MEMORIA
+     *---------------------------------------------------------------------------
+     */
+     
+    
+         //IMPLEMENTADO CLASE MEMORIA
+    /**
+    * @author grego
+    */
+    
+    //Inicializacion de memoria matriz 1000x1000 para no salirnos de los
+    //limites maximo de mapa 500x500 "4" indica memoria libre o mapa sin descubrir
+    
+    private void InicializarMemoria(){
+            
+    this.Mapa = new ArrayList<ArrayList<Integer>>();
+    
+    //Nos posicionamos en el centro de la memoria
+    this.MenY = 500;
+    this.MenX = 500;
+    
+    this.Rastro = new ArrayList<Pair>();
+    Pair PosicionRastro = new Pair(MenX,MenY);
+    
+  
+    
+    this.Rastro.add(PosicionRastro);
+    
+    System.out.println(Rastro.get(0).getValue());
+    
+    for(int i = 0; i < 1000; i++){
+        this.Mapa.add(new ArrayList<Integer>());
+            for (int j = 0; j < 1000; j++){
+                this.Mapa.get(i).add(4);
+            }
+    }
+    System.out.println("Tengo memoria");
+    }
+    
+ 
+    /**
+    * @author grego
+    *
+    *Visisualiza el mapa desde el centro de la memoria
+    *@pre para obtener un dato real usar la funcion con numeros impares
+    * @param a {Ancho ncasillar} 
+    * @param l {Alto ncasillas}
+    */
+    public void verMapa(int a, int l){
+     
+     
+        //Delimito el centro
+        int L = l/2 + 500;
+        int A = a/2 + 500;   
+        
+       
+        //Muestro los datos del centro de la memoria
+        for(int i = 500 - l/2 ; i < L; i++){
+            for (int j = 500 - a/2; j < A; j++){
+                if(4 == Mapa.get(i).get(j)){
+                    System.out.print(ColorMenLibre + Mapa.get(i).get(j));
+        
+                }else if(1 == Mapa.get(i).get(j)){
+                
+                    System.out.print(ColorObstaculo + Mapa.get(i).get(j));
+
+                }else if(5 == Mapa.get(i).get(j)){
+                
+                    System.out.print(ColorCoche + Mapa.get(i).get(j));
+
+                }else if(2 == Mapa.get(i).get(j)){
+                
+                    System.out.print(ColorObjetivo + Mapa.get(i).get(j));
+
+                }else if(Mapa.get(i).get(j) >= 6){
+                
+                    System.out.print(ColorRecorrido + Mapa.get(i).get(j));
+
+                }else{
+                    System.out.print( ColorSinOstaculos + Mapa.get(i).get(j));
+                    
+                }
+            }
+            System.out.println();
+        }
+
+    }
+ 
+     
+     
+    /**
+    * @author grego
+    *
+    *Visisualiza el mapa desde el coche
+    *@pre para obtener un dato real usar la funcion con numeros impares
+    * @param a {Ancho ncasillar} 
+    * @param l {Alto ncasillas}
+    */
+    public void verMapaCoche(int a, int l){
+     
+     
+        //Delimito el centro
+        int L = l/2 + this.MenY ;
+        int A = a/2 + this.MenX;   
+
+  
+        
+
+        
+        
+        //Muestro los datos del centro de la memoria
+        for(int i = this.MenY  - l/2 ; i < L; i++){
+            for (int j = this.MenX - a/2; j < A; j++){
+                if(4 == Mapa.get(i).get(j)){
+                    System.out.print(ColorMenLibre + Mapa.get(i).get(j));
+        
+                }else if(1 == Mapa.get(i).get(j)){
+                
+                    System.out.print(ColorObstaculo + Mapa.get(i).get(j));
+
+                }else if(5 == Mapa.get(i).get(j)){
+                
+                    System.out.print(ColorCoche + Mapa.get(i).get(j));
+
+                }else if(2 == Mapa.get(i).get(j)){
+                
+                    System.out.print(ColorObjetivo + Mapa.get(i).get(j));
+
+                }else if(Mapa.get(i).get(j) >= 6){
+                
+                    System.out.print(ColorRecorrido + Mapa.get(i).get(j));
+
+                }else{
+                    System.out.print( ColorSinOstaculos + Mapa.get(i).get(j));
+                    
+                }
+            }
+            System.out.println();
+        }
+
+    }
+    
+
+    
+    /**
+     *
+     * @author grego, kudry
+     * @param movementCommand
+     */
+    public void actuMapa(String movementCommand){
+        
+        //Contadores para la matriz del radar
+        int conRadarI = 0;
+        int conRadarJ = 0;
+        
+
+        
+        
+        //Ajusto mi posicion en funcion del movimiento
+        if (movementCommand.equals("moveW") ){
+            this.MenX--;
+            System.out.println("Voy al Oeste");
+
+        }else if (movementCommand.equals("moveE")){
+            this.MenX++;
+            System.out.println("Voy al Este");    
+
+        }else if (movementCommand.equals("moveN")){
+            this.MenY--;
+            System.out.println("Voy al Norte");    
+
+        }else if (movementCommand.equals("moveS")){
+            this.MenY++;
+            System.out.println("Voy al Sur");    
+        }
+      
+        else if (movementCommand.equals("moveNW")){
+            this.MenX--;
+            this.MenY--;
+            System.out.println("Voy al NorOeste");    
+        
+        }else if (movementCommand.equals("moveNE")){
+            this.MenX++;
+            this.MenY--;
+            System.out.println("Voy al NorEste");    
+        
+        }else if (movementCommand.equals("moveSW")){
+            this.MenX--;
+            this.MenY++;
+            System.out.println("Voy al NorOeste");    
+        
+        }else if (movementCommand.equals("moveSE")){
+            this.MenX++;
+            this.MenY++;
+            System.out.println("Voy al NorOeste");    
+        }        
+
+        //Añado la posicion del rastro
+        Pair PosicionRastro = new Pair(MenY,MenX);
+        Rastro.add(PosicionRastro);
+        
+        //Agrego la nueva informacion a la memoria
+        for(int i = this.MenY -2 ; i < this.MenY + 3; i++){
+            for (int j = this.MenX -2 ; j < this.MenX + 3; j++){
+                Mapa.get(i).set(j,lecturaRadar[conRadarI][conRadarJ]);
+                conRadarJ++;     
+            }
+            System.out.println();
+            conRadarI++;
+            conRadarJ = 0;     
+        }
+           
+        /*
+        *Rastro
+        */
+        
+       //Pego el camino recorrido
+            for(int i = 0; i < Rastro.size();i++){
+                Mapa.get((Integer)this.Rastro.get(i).getKey()).set((Integer) this.Rastro.get(i).getValue(), 6);
+            }
+       
+       //Ajusto el camino pisado
+      
+       ArrayList<Integer> comprobados;
+       comprobados = new ArrayList<Integer>();
+       
+       boolean comprobado = false;
+    
+    /*     
+        for(int i = 0; i < Rastro.size(); i++){
+            System.out.println("Y = " + Rastro.get(i).getKey() + " X = " + Rastro.get(i).getValue());
+        }
+    */
+       
+       
+        for(int i = 0; i < Rastro.size()-1; i++){
+            
+            for (int j = i+1; j < (Rastro.size()); j++){
+                comprobados.add(i);
+                                
+                comprobado = false;
+                
+                //Busco si ya lo he comprobado para no insertar dobles
+                for(int h = 0; h < comprobados.size(); h++){
+                    if (comprobados.get(h) == j){
+                        comprobado= true;
+                    }
+                }
+                
+                //Busco repetidos para incrementar        
+                if (this.Rastro.get(i).getKey().equals(this.Rastro.get(j).getKey()) && this.Rastro.get(i).getValue().equals(this.Rastro.get(j).getValue()) && comprobado == false){
+                    int aux = Mapa.get((Integer)this.Rastro.get(i).getKey()).get((Integer) this.Rastro.get(i).getValue());
+                    aux++;
+                    Mapa.get((Integer)this.Rastro.get(i).getKey()).set((Integer) this.Rastro.get(i).getValue(), aux);
+                    //Inserto el indice en comprobados    
+                    comprobados.add(j);
+                }
+
+            }
+        }
+
+        System.out.println("------ACTUALIZADO---------");
+        
+        // Ubico el coche en el mapa
+        Mapa.get(this.MenY).set(this.MenX, 5);
+        
+        //Muestro el mapa
+        this.verMapaCoche(40,40);
+        //this.verMapa(40,40);
+        
+        //Acualizo los pasos
+        Pasos++;
+
+        
+    }
+
 }
