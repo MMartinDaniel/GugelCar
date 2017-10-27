@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  */
 public class Helloworld {
     
-    public static final String NOMBRE_AGENTE = "agentep27";
+    public static final String NOMBRE_AGENTE = "agentep35";
     public static final String MAPA = "map1";
     /**
      * @param args the command line arguments
@@ -29,7 +29,7 @@ public class Helloworld {
        AgentsConnection.connect("isg2.ugr.es",6000,"Bellatrix","Escorpion","Russo",false);
         try {
 
-            a = new Agente(new AgentID(NOMBRE_AGENTE));
+            a = new Agente(new AgentID("agentep36"));
             a .start();
      
         } catch (Exception ex) {

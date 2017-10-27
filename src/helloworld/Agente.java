@@ -165,7 +165,7 @@ public class Agente extends SingleAgent {
         
         makeMove(nextMove);
         
-        while(!nextMove.equals("Encontrado")){
+        while(!this.objetivo()){
             nextMove = estrategia();
             makeMove(nextMove);
         }
@@ -396,10 +396,10 @@ public class Agente extends SingleAgent {
         
         try {
             jsonLogin.put("command", "login");
-            jsonLogin.put("world", Helloworld.MAPA);
-            jsonLogin.put("radar", Helloworld.NOMBRE_AGENTE);
-            jsonLogin.put("scanner", Helloworld.NOMBRE_AGENTE);
-            jsonLogin.put("battery", Helloworld.NOMBRE_AGENTE); 
+            jsonLogin.put("world", "map1");
+            jsonLogin.put("radar", "agentep36");
+            jsonLogin.put("scanner", "agentep36");
+            jsonLogin.put("battery", "agentep36"); 
             
         } catch (JSONException ex) {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
@@ -942,8 +942,8 @@ public class Agente extends SingleAgent {
         int coord_y = -1;
         
         // Miramos si el objetivo esta al alcance
-        for(int i=0; i < 8 && !encontrado; i++){
-            for(int j=0; j < 8 && !encontrado; j++){
+        for(int i=1; i < 4 && !encontrado; i++){
+            for(int j=1; j < 4 && !encontrado; j++){
                 if(lecturaRadar[i][j] == 2){
                     encontrado = true;
                     coord_x = i;
