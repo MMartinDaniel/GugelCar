@@ -46,6 +46,35 @@ public class Agente extends SingleAgent {
     private int Pasos;
     
     
+    // RUBEN
+    int pasos;
+    String [] last_moves;
+    int last_move_pointer;
+    
+    class Posicion {
+        int x;
+        int y;
+        int num_veces;
+
+        Posicion(int new_x, int new_y){
+            this.x = new_x;
+            this.y = new_y;
+            this.num_veces = 1;
+        }
+
+        Posicion(int new_x, int new_y, int new_num_veces){
+            this.x = new_x;
+            this.y = new_y;
+            this.num_veces = new_num_veces;
+        }
+
+        public void out(){
+            System.out.println(" X: " + this.x + "\n Y: " + this.y + "\n Num: " + this.num_veces + "\n");
+        }
+    };
+    
+    private ArrayList<Posicion> rastro;
+    
     
     //IMPLEMENTADO CLASE MEMORIA
     //Variables para visual
@@ -101,32 +130,51 @@ public class Agente extends SingleAgent {
         
         //Mapa2.verMapaCoche(40, 40);
         
+        // RUBEN
+        this.pasos= 99;
+        this.last_moves = new String[2];
+        
+        this.last_moves[0] = "";
+        this.last_moves[1] = "";
+        this.last_move_pointer = 0;
+        
+        this.rastro = new ArrayList();
     }
     
     //public void init();
     @Override
     public void execute(){
 
-         setDestinatario("Bellatrix");
-         login();
-         refuel();
+        setDestinatario("Bellatrix");
+        login();
+        refuel();
         
-        boolean exit = false;
+        /*boolean exit = false;
 
-        /*
-        while(!objetivo()){
-               if(i % 20 == 0){ refuel();
+        
+        //while(!objetivo()){
+        for (int i = 0;i<100;i++){
+              // if(i % 20 == 0){ refuel();
                 System.out.println(availableMovements());
                 makeMove(followScanner(availableMovements()));
                };
-        }
-        */
+        //}
+       */
         
+        String nextMove = estrategia();
+        
+        makeMove(nextMove);
+        
+        while(!nextMove.equals("Encontrado")){
+            nextMove = estrategia();
+            makeMove(nextMove);
+        }
+        
+        /*
         makeMove("moveN");
         
         System.out.println("El Sur tiene= " + this.getS());
         
-        /*
         makeMove("moveN");
         makeMove("moveN");
         makeMove("moveN");
@@ -141,8 +189,6 @@ public class Agente extends SingleAgent {
         makeMove("moveS");
         makeMove("moveS");
         makeMove("moveS");
-        */
-        /*
         makeMove("moveS");
         makeMove("moveS");
         makeMove("moveN");
@@ -152,7 +198,6 @@ public class Agente extends SingleAgent {
         makeMove("moveS");
         makeMove("moveS");
         */
-
       
        
         logout();    
@@ -195,8 +240,8 @@ public class Agente extends SingleAgent {
         try {
             //System.out.println("Recibiendo Traza");
             ACLMessage inbox = this.receiveACLMessage();
-            System.out.println("Recibido mensaje " +inbox.getContent()+ " de "
-                    +inbox.getSender().getLocalName());
+            //System.out.println("Recibido mensaje " +inbox.getContent()+ " de "
+                    //+inbox.getSender().getLocalName());
             obj = new JSONObject(inbox.getContent());
             
              if(obj.has("result") && !obj.get("result").equals("CRASHED") 
@@ -284,8 +329,10 @@ public class Agente extends SingleAgent {
         }
         
         outbox.setContent(jsonRefuel.toString());
-        System.out.println(jsonRefuel.toString());
+        //System.out.println(jsonRefuel.toString());
         this.send(outbox);
+        
+        this.pasos = 99;
         
         String respuesta = this.getMessage().toString();
         Parseo(respuesta);
@@ -349,17 +396,17 @@ public class Agente extends SingleAgent {
         
         try {
             jsonLogin.put("command", "login");
-            jsonLogin.put("world", "map2");
-            jsonLogin.put("radar", "agentep3");
-            jsonLogin.put("scanner", "agentep3");
-            jsonLogin.put("battery", "agentep3"); 
+            jsonLogin.put("world", "map6");
+            jsonLogin.put("radar", "agentep13");
+            jsonLogin.put("scanner", "agentep13");
+            jsonLogin.put("battery", "agentep13"); 
             
         } catch (JSONException ex) {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         outbox.setContent(jsonLogin.toString());
-        System.out.println(jsonLogin.toString());
+        //System.out.println(jsonLogin.toString());
         this.send(outbox);
        
         JSONObject obj = this.getMessage();
@@ -370,7 +417,7 @@ public class Agente extends SingleAgent {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        System.out.println("Login Key: " + loginKey);
+        //System.out.println("Login Key: " + loginKey);
         return !"".equals(this.loginKey);
         
     };
@@ -387,12 +434,12 @@ public class Agente extends SingleAgent {
             jsonLogout.put("key", loginKey);
             
             outbox.setContent(jsonLogout.toString());
-            System.out.println(jsonLogout.toString());
+            //System.out.println(jsonLogout.toString());
             this.send(outbox);
         }catch (JSONException ex) {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println(getMessage());
+        //System.out.println(getMessage());
         return true;  
     };
 
@@ -424,10 +471,12 @@ public class Agente extends SingleAgent {
         Parseo(respuesta);
         
         //Actualizacion de memoria pegamos en memoria la nueva traza del escaner
-        System.out.println("ME HE MOVIDO");
+        //System.out.println("ME HE MOVIDO");
+        
+        this.pasos--;
         
         this.actuMapa(movementCommand); 
-        this.Autorefuel();
+        //this.Autorefuel();
         
         return respuesta;
     };
@@ -513,7 +562,7 @@ public class Agente extends SingleAgent {
             nextMove = "moveNW";
         }
       */
-        System.out.println("NEXT MOVE:" + nextMove);
+        //System.out.println("NEXT MOVE:" + nextMove);
        return nextMove;
     }
     
@@ -529,6 +578,22 @@ public class Agente extends SingleAgent {
     no 11  
     */
        
+    public int TraducirPosicion(int coordenada_coche, int indice_radar){
+        int aux = coordenada_coche;
+        
+        switch(indice_radar){
+            case 1:
+                aux -= 1;
+                break;
+            case 2:
+                break;
+            case 3:
+                aux += 1;
+                break;
+        }
+        
+        return aux;
+    }
     
     /**
     * @author Daniel
@@ -536,14 +601,25 @@ public class Agente extends SingleAgent {
     
     
         public String availableMovements(){
+            int posX;
+            int posY;
+            
             String availables = ""; 
             for (int i = 1; i <= 3; i++) {
                 for (int j = 1; j <= 3; j++) {
                     if(lecturaRadar[i][j] != 1 && i != j){
-                        availables = availables + i + "," + j + ",";
+                         posX = TraducirPosicion(this.MenX, i);
+                         posY = TraducirPosicion(this.MenY, j);
+                         Pair a = new Pair(posY, posX);
+                         int rx = (Integer) Rastro.get(Rastro.size()-1).getKey();
+                         int ry = (Integer) Rastro.get(Rastro.size()-1).getValue();
+                         if(!Rastro.contains(a))
+                            availables = availables + i + "," + j + ",";
                     }
                 }
-           }
+            }
+            
+            
             
           return availables;
     };
@@ -552,9 +628,9 @@ public class Agente extends SingleAgent {
 
             for (int i = 1; i <= 3; i++) {
                 for (int j = 1; j <= 3; j++) {
-                    System.out.print(lecturaRadar[i][j]);
+                    //System.out.print(lecturaRadar[i][j]);
                 }
-                System.out.println("");
+                //System.out.println("");
            }
             
            switch(tryDirection){
@@ -713,7 +789,7 @@ public class Agente extends SingleAgent {
     
     this.Rastro.add(PosicionRastro);
     
-    System.out.println(Rastro.get(0).getValue());
+    //System.out.println(Rastro.get(0).getValue());
     
     for(int i = 0; i < 1000; i++){
         this.Mapa.add(new ArrayList<Integer>());
@@ -721,7 +797,7 @@ public class Agente extends SingleAgent {
                 this.Mapa.get(i).add(4);
             }
     }
-    System.out.println("Tengo memoria");
+    //System.out.println("Tengo memoria");
     }
     
  
@@ -803,28 +879,354 @@ public class Agente extends SingleAgent {
         
                 }else if(1 == Mapa.get(i).get(j)){
                 
-                    System.out.print(ColorObstaculo + Mapa.get(i).get(j));
+                    //System.out.print(ColorObstaculo + Mapa.get(i).get(j));
 
                 }else if(5 == Mapa.get(i).get(j)){
                 
-                    System.out.print(ColorCoche + Mapa.get(i).get(j));
+                    //System.out.print(ColorCoche + Mapa.get(i).get(j));
 
                 }else if(2 == Mapa.get(i).get(j)){
                 
-                    System.out.print(ColorObjetivo + Mapa.get(i).get(j));
+                    //System.out.print(ColorObjetivo + Mapa.get(i).get(j));
 
                 }else if(Mapa.get(i).get(j) >= 6){
                 
-                    System.out.print(ColorRecorrido + Mapa.get(i).get(j));
+                    //System.out.print(ColorRecorrido + Mapa.get(i).get(j));
 
                 }else{
-                    System.out.print( ColorSinOstaculos + Mapa.get(i).get(j));
+                    //System.out.print( ColorSinOstaculos + Mapa.get(i).get(j));
                     
                 }
             }
-            System.out.println();
+            //System.out.println();
         }
 
+    }
+    
+    private boolean checkTarget() {
+        boolean encontrado = false;
+        
+        // Leemos el radar y miramos si hemos encontrado el objetivo
+        for(int i=0; i < 5 && !encontrado; i++){
+            for(int j=0; j < 5 && !encontrado; j++){
+                if(lecturaRadar[i][j] == 2){
+                    encontrado = true;
+                }
+            }
+        }
+        
+        return encontrado;
+    }
+    
+    public boolean buscar(int x, int y){
+        boolean encontrado = false;
+        
+        if(rastro.size() > 100){
+            for(int j=rastro.size()-1; j > rastro.size()-51 && !encontrado; j--){
+                Posicion p = rastro.get(j);
+
+                if(p.x == x && p.y == y && p.num_veces >= 5){
+                    System.out.println("Ya hemos pasado por " + x + "," + y + " al menos 5 veces. La eliminamos");
+                    encontrado = true;
+                }
+            }
+        }
+        else {
+            for(int j=0; j < rastro.size() && !encontrado; j++){
+                Posicion p = rastro.get(j);
+
+                if(p.x == x && p.y == y && p.num_veces >= 5){
+                    System.out.println("Ya hemos pasado por " + x + "," + y + " al menos 5 veces. La eliminamos");
+                    encontrado = true;
+                }
+            }
+        }
+        
+        return encontrado;
+    }
+    
+    public String estrategia() {
+        
+        if(this.pasos == 1)
+            this.refuel();
+        
+        // Comprobamos si vemos el objetivo
+        boolean found = checkTarget();
+        String nextMove = "";
+        
+        // Si no lo vemos, filtramos y dejamos SOLO las direcciones donde podemos ir
+        if(!found){
+            boolean[] posibles_movimientos = new boolean[8];
+            // Puntero auxiliar que nos sirve para rellenar el vector anterior
+            int pointer = 0;
+            
+            for(int i=1; i<4; i++){
+                for(int j=1; j<4; j++){
+                    // No tenemos en cuenta la posicion donde esta el coche: lecturaRadar[2][2]
+                    if(i != 2 || j != 2){
+                        System.out.println("Lectura radar: " + lecturaRadar[i][j]);
+                        if(lecturaRadar[i][j] == 0)
+                            posibles_movimientos[pointer] = true;
+                        else
+                            posibles_movimientos[pointer] = false;
+                        
+                        pointer++;
+                    }
+                }
+            }
+            
+            // Buscamos la direccion en funcion de la menor distancia, siempre que dicha direccion sea posible
+            double[] distancias = new double[8];
+            
+            pointer = 0;
+            
+            for(int i=1; i<4; i++){
+                for(int j=1; j<4; j++){
+                    if(i != 2 || j != 2){
+                        distancias[pointer] = lecturaScanner[i][j];
+                        pointer++;
+                    }
+                }
+            }
+            
+            // Pasamos el filtro del Radar
+            for(int i=0; i<8; i++){
+                if(posibles_movimientos[i] == false)
+                    distancias[i] = 1000.0;
+            }
+            
+            boolean encontrado;
+            
+            // Pasamos el filtro del rastro
+            for(int i=0; i < 8; i++){
+                if(posibles_movimientos[i] == true){
+                    switch(i){
+                        case 0:
+                            encontrado = buscar(this.MenY-1, this.MenX-1);
+                            
+                            if(encontrado)
+                                distancias[i] = 1000.0;
+                            break;
+                        case 1:
+                            encontrado = buscar(this.MenY-1, this.MenX);
+                            
+                            if(encontrado)
+                                distancias[i] = 1000.0;
+                            break;
+                        case 2:
+                            encontrado = buscar(this.MenY-1, this.MenX+1);
+                            
+                            if(encontrado)
+                                distancias[i] = 1000.0;
+                            break;
+                        case 3:
+                            encontrado = buscar(this.MenY, this.MenX-1);
+                            
+                            if(encontrado)
+                                distancias[i] = 1000.0;
+                            break;
+                        case 4:
+                            encontrado = buscar(this.MenY, this.MenX+1);
+                            
+                            if(encontrado)
+                                distancias[i] = 1000.0;
+                            break;
+                        case 5:
+                            encontrado = buscar(this.MenY+1, this.MenX-1);
+                            
+                            if(encontrado)
+                                distancias[i] = 1000.0;
+                            break;
+                        case 6:
+                            encontrado = buscar(this.MenY+1, this.MenX);
+                            
+                            if(encontrado)
+                                distancias[i] = 1000.0;
+                            break;
+                        case 7:
+                            encontrado = buscar(this.MenY+1, this.MenX+1);
+                            
+                            if(encontrado)
+                                distancias[i] = 1000.0;
+                            break;
+                    }
+                }
+            }
+            
+            for(int i=0; i < 8; i++)
+                System.out.println("Distancia " + i + ": " + distancias[i]);
+            
+            double smaller = distancias[0];
+            int index = 0;
+            
+            for(int i=1; i<8; i++){
+                if(distancias[i] < smaller){
+                    smaller = distancias[i];
+                    index = i;
+                }
+            }
+            
+            switch(index){
+                case 0:
+                    nextMove="moveNW";
+                    break;
+                case 1:
+                    nextMove="moveN";
+                    break;
+                case 2:
+                    nextMove="moveNE";
+                    break;
+                case 3:
+                    nextMove="moveW";
+                    break;
+                case 4:
+                    nextMove="moveE";
+                    break;
+                case 5:
+                    nextMove="moveSW";
+                    break;
+                case 6:
+                    nextMove="moveS";
+                    break;
+                case 7:
+                    nextMove="moveSE";
+                    break;
+            }
+            
+            /*if(nextMove.equals(this.last_moves[this.last_move_pointer])){
+                String contrario = "";
+                
+                switch(nextMove){
+                    case "moveNW":
+                        contrario = "moveSE";
+                        break;
+                    case "moveN":
+                        contrario = "moveS";
+                        break;
+                    case "moveNE":
+                        contrario = "moveSW";
+                        break;
+                    case "moveE":
+                        contrario = "moveW";
+                        break;
+                    case "moveW":
+                        contrario = "moveE";
+                        break;
+                    case "moveSW":
+                        contrario = "moveNE";
+                        break;
+                    case "moveS":
+                        contrario = "moveN";
+                        break;
+                    case "moveSE":
+                        contrario = "moveNW";
+                        break;
+                }
+                
+                if(this.last_moves[(this.last_move_pointer+1)%2].equals(contrario)){
+                    // Hemos detectado un bucle
+                    
+                    
+                    /*if(index == 0){
+                        smaller = distancias[1];
+                        index = 1;
+                        
+                        for(int i=2; i < 8; i++){
+                            if(distancias[i] < smaller){
+                                smaller = distancias[i];
+                                index = i;
+                            }
+                        }
+                        
+                        switch(index){
+                            case 0:
+                                nextMove="moveNW";
+                                break;
+                            case 1:
+                                nextMove="moveN";
+                                break;
+                            case 2:
+                                nextMove="moveNE";
+                                break;
+                            case 3:
+                                nextMove="moveW";
+                                break;
+                            case 4:
+                                nextMove="moveE";
+                                break;
+                            case 5:
+                                nextMove="moveSW";
+                                break;
+                            case 6:
+                                nextMove="moveS";
+                                break;
+                            case 7:
+                                nextMove="moveSE";
+                                break;
+                        }
+                    } else {
+                        int last_index = index;
+                        
+                        smaller = distancias[0];
+                        index = 0;
+                        
+                        for(int i=0; i<8; i++){
+                            if(i != last_index && distancias[i] < smaller){
+                                smaller = distancias[i];
+                                index = i;
+                            }
+                        }
+                        
+                        switch(index){
+                            case 0:
+                                nextMove="moveNW";
+                                break;
+                            case 1:
+                                nextMove="moveN";
+                                break;
+                            case 2:
+                                nextMove="moveNE";
+                                break;
+                            case 3:
+                                nextMove="moveW";
+                                break;
+                            case 4:
+                                nextMove="moveE";
+                                break;
+                            case 5:
+                                nextMove="moveSW";
+                                break;
+                            case 6:
+                                nextMove="moveS";
+                                break;
+                            case 7:
+                                nextMove="moveSE";
+                                break;
+                        }
+                    }
+                }
+                
+                System.out.println("New nextMove: " + nextMove);
+                    
+                System.out.println("Escribiendo nextMove en : " + this.last_move_pointer);
+            
+                this.last_moves[this.last_move_pointer] = nextMove;
+                this.last_move_pointer = (this.last_move_pointer + 1)%2;
+            
+                System.out.println("Last moves: " + this.last_moves[0] + " " + this.last_moves[1]);
+            } else {
+                System.out.println("Escribiendo nextMove en : " + this.last_move_pointer);
+            
+                this.last_moves[this.last_move_pointer] = nextMove;
+                this.last_move_pointer = (this.last_move_pointer + 1)%2;
+            
+                System.out.println("Last moves: " + this.last_moves[0] + " " + this.last_moves[1]);
+            }*/
+        } else {
+            nextMove = "Encontrado";
+        }
+          
+        return nextMove;
     }
     
 
@@ -846,45 +1248,81 @@ public class Agente extends SingleAgent {
         //Ajusto mi posicion en funcion del movimiento
         if (movementCommand.equals("moveW") ){
             this.MenX--;
-            System.out.println("Voy al Oeste");
+            //System.out.println("Voy al Oeste");
 
         }else if (movementCommand.equals("moveE")){
             this.MenX++;
-            System.out.println("Voy al Este");    
+            //System.out.println("Voy al Este");    
 
         }else if (movementCommand.equals("moveN")){
             this.MenY--;
-            System.out.println("Voy al Norte");    
+            //System.out.println("Voy al Norte");    
 
         }else if (movementCommand.equals("moveS")){
             this.MenY++;
-            System.out.println("Voy al Sur");    
+            //System.out.println("Voy al Sur");    
         }
       
         else if (movementCommand.equals("moveNW")){
             this.MenX--;
             this.MenY--;
-            System.out.println("Voy al NorOeste");    
+            //System.out.println("Voy al NorOeste");    
         
         }else if (movementCommand.equals("moveNE")){
             this.MenX++;
             this.MenY--;
-            System.out.println("Voy al NorEste");    
+            //System.out.println("Voy al NorEste");    
         
         }else if (movementCommand.equals("moveSW")){
             this.MenX--;
             this.MenY++;
-            System.out.println("Voy al NorOeste");    
+            //System.out.println("Voy al NorOeste");    
         
         }else if (movementCommand.equals("moveSE")){
             this.MenX++;
             this.MenY++;
-            System.out.println("Voy al NorOeste");    
+            //System.out.println("Voy al NorOeste");    
         }        
 
         //Añado la posicion del rastro
         Pair PosicionRastro = new Pair(MenY,MenX);
         Rastro.add(PosicionRastro);
+        
+        // RUBEN
+        
+        Posicion new_posicion = new Posicion(this.MenY, this.MenX);
+
+        System.out.println("Aniadiendo la posicion " + new_posicion.x + "," + new_posicion.y);
+        
+        boolean encontrado = false;
+        int index = -1;
+
+        for(int i=0; i < rastro.size() && !encontrado; i++){
+            Posicion p = rastro.get(i);
+            
+            if(p.x == new_posicion.x && p.y == new_posicion.y){
+                encontrado = true;
+                index = i;
+            }
+        }
+
+        if(index == -1)
+            rastro.add(new_posicion);
+        else {
+            //System.out.println("La posicion que intentas aniadir ya se encuentra.");
+            Posicion aux = rastro.get(index);
+            Posicion new_new_posicion = new Posicion(this.MenY,this.MenX,aux.num_veces+1);
+            rastro.set(index, new_new_posicion);
+        }
+        
+        /* OUT
+        System.out.println("Rastro contiene: ");
+        
+        for(Posicion p : rastro){
+            p.out();
+        }*/
+        
+        // FIN RUBEN
         
         //Agrego la nueva informacion a la memoria
         for(int i = this.MenY -2 ; i < this.MenY + 3; i++){
@@ -892,7 +1330,7 @@ public class Agente extends SingleAgent {
                 Mapa.get(i).set(j,lecturaRadar[conRadarI][conRadarJ]);
                 conRadarJ++;     
             }
-            System.out.println();
+            //System.out.println();
             conRadarI++;
             conRadarJ = 0;     
         }
@@ -946,7 +1384,7 @@ public class Agente extends SingleAgent {
             }
         }
 
-        System.out.println("------ACTUALIZADO---------");
+        //System.out.println("------ACTUALIZADO---------");
         
         // Ubico el coche en el mapa
         Mapa.get(this.MenY).set(this.MenX, 5);

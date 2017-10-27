@@ -27,7 +27,7 @@ public class Helloworld {
        AgentsConnection.connect("isg2.ugr.es",6000,"Bellatrix","Escorpion","Russo",false);
         try {
 
-            a = new Agente(new AgentID("agentep3"));
+            a = new Agente(new AgentID("agentep13"));
             a .start();
      
         } catch (Exception ex) {
