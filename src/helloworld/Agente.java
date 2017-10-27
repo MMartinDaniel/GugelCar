@@ -168,6 +168,7 @@ public class Agente extends SingleAgent {
         while(!this.objetivo()){
             nextMove = estrategia();
             makeMove(nextMove);
+            this.verMapaCoche(20,20);
         }
         
         /*
@@ -203,7 +204,7 @@ public class Agente extends SingleAgent {
         logout();    
         generarMapaTraza();
         
-      // this.verMapaCoche(151,151);
+        //this.verMapaCoche(30,30);
          // this.verMapa(151,151);
 
         
@@ -396,10 +397,10 @@ public class Agente extends SingleAgent {
         
         try {
             jsonLogin.put("command", "login");
-            jsonLogin.put("world", "map2");
-            jsonLogin.put("radar", "agentep36");
-            jsonLogin.put("scanner", "agentep36");
-            jsonLogin.put("battery", "agentep36"); 
+            jsonLogin.put("world", "map10");
+            jsonLogin.put("radar", "agentep37");
+            jsonLogin.put("scanner", "agentep37");
+            jsonLogin.put("battery", "agentep37"); 
             
         } catch (JSONException ex) {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
@@ -879,26 +880,26 @@ public class Agente extends SingleAgent {
         
                 }else if(1 == Mapa.get(i).get(j)){
                 
-                    //System.out.print(ColorObstaculo + Mapa.get(i).get(j));
+                    System.out.print(ColorObstaculo + Mapa.get(i).get(j));
 
                 }else if(5 == Mapa.get(i).get(j)){
                 
-                    //System.out.print(ColorCoche + Mapa.get(i).get(j));
+                    System.out.print(ColorCoche + Mapa.get(i).get(j));
 
                 }else if(2 == Mapa.get(i).get(j)){
                 
-                    //System.out.print(ColorObjetivo + Mapa.get(i).get(j));
+                    System.out.print(ColorObjetivo + Mapa.get(i).get(j));
 
                 }else if(Mapa.get(i).get(j) >= 6){
                 
-                    //System.out.print(ColorRecorrido + Mapa.get(i).get(j));
+                    System.out.print(ColorRecorrido + Mapa.get(i).get(j));
 
                 }else{
-                    //System.out.print( ColorSinOstaculos + Mapa.get(i).get(j));
+                    System.out.print( ColorSinOstaculos + Mapa.get(i).get(j));
                     
                 }
             }
-            //System.out.println();
+            System.out.println();
         }
 
     }
@@ -906,11 +907,11 @@ public class Agente extends SingleAgent {
     public boolean buscar(int x, int y){
         boolean encontrado = false;
         
-        if(rastro.size() > 50){
-            for(int j=rastro.size()-1; j > rastro.size()-51 && !encontrado; j--){
+        if(rastro.size() > 125){
+            for(int j=rastro.size()-1; j > rastro.size()-126 && !encontrado; j--){
                 Posicion p = rastro.get(j);
 
-                if(p.x == x && p.y == y && p.num_veces >= 5){
+                if(p.x == x && p.y == y && p.num_veces >= 2){
                     System.out.println("Ya hemos pasado por " + x + "," + y + " al menos 5 veces. La eliminamos");
                     encontrado = true;
                 }
@@ -1201,13 +1202,24 @@ public class Agente extends SingleAgent {
         
         boolean encontrado = false;
         int index = -1;
-
-        for(int i=0; i < rastro.size() && !encontrado; i++){
-            Posicion p = rastro.get(i);
+        
+        if(rastro.size() > 75){
+            for(int i=rastro.size()-1; i > rastro.size()-76; i--){
+                Posicion p = rastro.get(i);
             
-            if(p.x == new_posicion.x && p.y == new_posicion.y){
-                encontrado = true;
-                index = i;
+                if(p.x == new_posicion.x && p.y == new_posicion.y){
+                    encontrado = true;
+                    index = i;
+                }
+            }
+        } else {
+            for(int i=0; i < rastro.size() && !encontrado; i++){
+                Posicion p = rastro.get(i);
+
+                if(p.x == new_posicion.x && p.y == new_posicion.y){
+                    encontrado = true;
+                    index = i;
+                }
             }
         }
 
@@ -1295,7 +1307,7 @@ public class Agente extends SingleAgent {
         Mapa.get(this.MenY).set(this.MenX, 5);
         
         //Muestro el mapa
-        this.verMapaCoche(40,40);
+        //this.verMapaCoche(40,40);
         //this.verMapa(40,40);
         
         //Acualizo los pasos
