@@ -396,10 +396,10 @@ public class Agente extends SingleAgent {
         
         try {
             jsonLogin.put("command", "login");
-            jsonLogin.put("world", "map6");
-            jsonLogin.put("radar", "agentep13");
-            jsonLogin.put("scanner", "agentep13");
-            jsonLogin.put("battery", "agentep13"); 
+            jsonLogin.put("world", Helloworld.MAPA);
+            jsonLogin.put("radar", Helloworld.NOMBRE_AGENTE);
+            jsonLogin.put("scanner", Helloworld.NOMBRE_AGENTE);
+            jsonLogin.put("battery", Helloworld.NOMBRE_AGENTE); 
             
         } catch (JSONException ex) {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
@@ -903,25 +903,10 @@ public class Agente extends SingleAgent {
 
     }
     
-    private boolean checkTarget() {
-        boolean encontrado = false;
-        
-        // Leemos el radar y miramos si hemos encontrado el objetivo
-        for(int i=0; i < 5 && !encontrado; i++){
-            for(int j=0; j < 5 && !encontrado; j++){
-                if(lecturaRadar[i][j] == 2){
-                    encontrado = true;
-                }
-            }
-        }
-        
-        return encontrado;
-    }
-    
     public boolean buscar(int x, int y){
         boolean encontrado = false;
         
-        if(rastro.size() > 100){
+        if(rastro.size() > 50){
             for(int j=rastro.size()-1; j > rastro.size()-51 && !encontrado; j--){
                 Posicion p = rastro.get(j);
 
@@ -950,12 +935,64 @@ public class Agente extends SingleAgent {
         if(this.pasos == 1)
             this.refuel();
         
-        // Comprobamos si vemos el objetivo
-        boolean found = checkTarget();
         String nextMove = "";
         
-        // Si no lo vemos, filtramos y dejamos SOLO las direcciones donde podemos ir
-        if(!found){
+        boolean encontrado = false;
+        int coord_x = -1;
+        int coord_y = -1;
+        
+        // Miramos si el objetivo esta al alcance
+        for(int i=0; i < 8 && !encontrado; i++){
+            for(int j=0; j < 8 && !encontrado; j++){
+                if(lecturaRadar[i][j] == 2){
+                    encontrado = true;
+                    coord_x = i;
+                    coord_y = j;
+                }
+                
+            }
+        }
+        
+        if(encontrado){
+            // Nos dirigimos directamente al objetivo
+            switch(coord_x){
+                case 1:
+                    switch(coord_y){
+                        case 1:
+                            nextMove = "moveNW";
+                            break;
+                        case 2:
+                            nextMove = "moveN";
+                            break;
+                        case 3:
+                            nextMove = "moveNE";
+                    }
+                    break;
+                case 2:
+                    switch(coord_y){
+                        case 1:
+                            nextMove = "moveW";
+                            break;
+                        case 3:
+                            nextMove = "moveE";
+                    }
+                    break;
+                case 3:
+                    switch(coord_y){
+                        case 1:
+                            nextMove = "moveSW";
+                            break;
+                        case 2:
+                            nextMove = "moveS";
+                            break;
+                        case 3:
+                            nextMove = "moveSE";
+                    }
+                    break;
+            }
+        } else {
+            // Si no lo vemos, filtramos y dejamos SOLO las direcciones donde podemos ir
+        //if(!found){
             boolean[] posibles_movimientos = new boolean[8];
             // Puntero auxiliar que nos sirve para rellenar el vector anterior
             int pointer = 0;
@@ -989,64 +1026,64 @@ public class Agente extends SingleAgent {
                 }
             }
             
+            boolean posicion_encontrada;
+            
             // Pasamos el filtro del Radar
             for(int i=0; i<8; i++){
                 if(posibles_movimientos[i] == false)
                     distancias[i] = 1000.0;
             }
             
-            boolean encontrado;
-            
             // Pasamos el filtro del rastro
             for(int i=0; i < 8; i++){
                 if(posibles_movimientos[i] == true){
                     switch(i){
                         case 0:
-                            encontrado = buscar(this.MenY-1, this.MenX-1);
+                            posicion_encontrada = buscar(this.MenY-1, this.MenX-1);
                             
-                            if(encontrado)
+                            if(posicion_encontrada)
                                 distancias[i] = 1000.0;
                             break;
                         case 1:
-                            encontrado = buscar(this.MenY-1, this.MenX);
+                            posicion_encontrada = buscar(this.MenY-1, this.MenX);
                             
-                            if(encontrado)
+                            if(posicion_encontrada)
                                 distancias[i] = 1000.0;
                             break;
                         case 2:
-                            encontrado = buscar(this.MenY-1, this.MenX+1);
+                            posicion_encontrada = buscar(this.MenY-1, this.MenX+1);
                             
-                            if(encontrado)
+                            if(posicion_encontrada)
                                 distancias[i] = 1000.0;
                             break;
                         case 3:
-                            encontrado = buscar(this.MenY, this.MenX-1);
+                            posicion_encontrada = buscar(this.MenY, this.MenX-1);
                             
-                            if(encontrado)
+                            if(posicion_encontrada)
                                 distancias[i] = 1000.0;
                             break;
                         case 4:
-                            encontrado = buscar(this.MenY, this.MenX+1);
+                            posicion_encontrada = buscar(this.MenY, this.MenX+1);
                             
-                            if(encontrado)
+                            if(posicion_encontrada)
                                 distancias[i] = 1000.0;
                             break;
                         case 5:
-                            encontrado = buscar(this.MenY+1, this.MenX-1);
+                            posicion_encontrada = buscar(this.MenY+1, this.MenX-1);
                             
-                            if(encontrado)
+                            if(posicion_encontrada)
                                 distancias[i] = 1000.0;
                             break;
                         case 6:
-                            encontrado = buscar(this.MenY+1, this.MenX);
+                            posicion_encontrada = buscar(this.MenY+1, this.MenX);
                             
-                            if(encontrado)
+                            if(posicion_encontrada)
                                 distancias[i] = 1000.0;
                             break;
                         case 7:
-                            encontrado = buscar(this.MenY+1, this.MenX+1);
+                            posicion_encontrada = buscar(this.MenY+1, this.MenX+1);
                             
-                            if(encontrado)
+                            if(posicion_encontrada)
                                 distancias[i] = 1000.0;
                             break;
                     }
@@ -1092,140 +1129,8 @@ public class Agente extends SingleAgent {
                     nextMove="moveSE";
                     break;
             }
-            
-            /*if(nextMove.equals(this.last_moves[this.last_move_pointer])){
-                String contrario = "";
-                
-                switch(nextMove){
-                    case "moveNW":
-                        contrario = "moveSE";
-                        break;
-                    case "moveN":
-                        contrario = "moveS";
-                        break;
-                    case "moveNE":
-                        contrario = "moveSW";
-                        break;
-                    case "moveE":
-                        contrario = "moveW";
-                        break;
-                    case "moveW":
-                        contrario = "moveE";
-                        break;
-                    case "moveSW":
-                        contrario = "moveNE";
-                        break;
-                    case "moveS":
-                        contrario = "moveN";
-                        break;
-                    case "moveSE":
-                        contrario = "moveNW";
-                        break;
-                }
-                
-                if(this.last_moves[(this.last_move_pointer+1)%2].equals(contrario)){
-                    // Hemos detectado un bucle
-                    
-                    
-                    /*if(index == 0){
-                        smaller = distancias[1];
-                        index = 1;
-                        
-                        for(int i=2; i < 8; i++){
-                            if(distancias[i] < smaller){
-                                smaller = distancias[i];
-                                index = i;
-                            }
-                        }
-                        
-                        switch(index){
-                            case 0:
-                                nextMove="moveNW";
-                                break;
-                            case 1:
-                                nextMove="moveN";
-                                break;
-                            case 2:
-                                nextMove="moveNE";
-                                break;
-                            case 3:
-                                nextMove="moveW";
-                                break;
-                            case 4:
-                                nextMove="moveE";
-                                break;
-                            case 5:
-                                nextMove="moveSW";
-                                break;
-                            case 6:
-                                nextMove="moveS";
-                                break;
-                            case 7:
-                                nextMove="moveSE";
-                                break;
-                        }
-                    } else {
-                        int last_index = index;
-                        
-                        smaller = distancias[0];
-                        index = 0;
-                        
-                        for(int i=0; i<8; i++){
-                            if(i != last_index && distancias[i] < smaller){
-                                smaller = distancias[i];
-                                index = i;
-                            }
-                        }
-                        
-                        switch(index){
-                            case 0:
-                                nextMove="moveNW";
-                                break;
-                            case 1:
-                                nextMove="moveN";
-                                break;
-                            case 2:
-                                nextMove="moveNE";
-                                break;
-                            case 3:
-                                nextMove="moveW";
-                                break;
-                            case 4:
-                                nextMove="moveE";
-                                break;
-                            case 5:
-                                nextMove="moveSW";
-                                break;
-                            case 6:
-                                nextMove="moveS";
-                                break;
-                            case 7:
-                                nextMove="moveSE";
-                                break;
-                        }
-                    }
-                }
-                
-                System.out.println("New nextMove: " + nextMove);
-                    
-                System.out.println("Escribiendo nextMove en : " + this.last_move_pointer);
-            
-                this.last_moves[this.last_move_pointer] = nextMove;
-                this.last_move_pointer = (this.last_move_pointer + 1)%2;
-            
-                System.out.println("Last moves: " + this.last_moves[0] + " " + this.last_moves[1]);
-            } else {
-                System.out.println("Escribiendo nextMove en : " + this.last_move_pointer);
-            
-                this.last_moves[this.last_move_pointer] = nextMove;
-                this.last_move_pointer = (this.last_move_pointer + 1)%2;
-            
-                System.out.println("Last moves: " + this.last_moves[0] + " " + this.last_moves[1]);
-            }*/
-        } else {
-            nextMove = "Encontrado";
         }
-          
+        
         return nextMove;
     }
     
