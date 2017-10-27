@@ -396,7 +396,7 @@ public class Agente extends SingleAgent {
         
         try {
             jsonLogin.put("command", "login");
-            jsonLogin.put("world", "map1");
+            jsonLogin.put("world", "map2");
             jsonLogin.put("radar", "agentep36");
             jsonLogin.put("scanner", "agentep36");
             jsonLogin.put("battery", "agentep36"); 
