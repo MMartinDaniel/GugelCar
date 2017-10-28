@@ -170,7 +170,7 @@ public class Agente extends SingleAgent {
             makeMove(nextMove);
             this.verMapaCoche(20,20);
         }
-        
+        this.verMapaCoche(20,20);
         /*
         makeMove("moveN");
         
@@ -397,10 +397,10 @@ public class Agente extends SingleAgent {
         
         try {
             jsonLogin.put("command", "login");
-            jsonLogin.put("world", "map10");
-            jsonLogin.put("radar", "agentep37");
-            jsonLogin.put("scanner", "agentep37");
-            jsonLogin.put("battery", "agentep37"); 
+            jsonLogin.put("world", "map1");
+            jsonLogin.put("radar", "agentep40");
+            jsonLogin.put("scanner", "agentep40");
+            jsonLogin.put("battery", "agentep40"); 
             
         } catch (JSONException ex) {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
@@ -906,13 +906,12 @@ public class Agente extends SingleAgent {
     
     public boolean buscar(int x, int y){
         boolean encontrado = false;
-        
+
         if(rastro.size() > 125){
             for(int j=rastro.size()-1; j > rastro.size()-126 && !encontrado; j--){
                 Posicion p = rastro.get(j);
-
                 if(p.x == x && p.y == y && p.num_veces >= 2){
-                    System.out.println("Ya hemos pasado por " + x + "," + y + " al menos 5 veces. La eliminamos");
+                    System.out.println("Ya hemos pasado por " + x + "," + y + " al menos 2 veces. La eliminamos");
                     encontrado = true;
                 }
             }
@@ -930,6 +929,15 @@ public class Agente extends SingleAgent {
         
         return encontrado;
     }
+    
+    
+    public double comprobarPasada(int y, int x){
+        if(Mapa.get(y).get(x) == 0){
+            return 5.0;
+        }
+        return 0;
+    }
+    
     
     public String estrategia() {
         
@@ -1034,58 +1042,81 @@ public class Agente extends SingleAgent {
                 if(posibles_movimientos[i] == false)
                     distancias[i] = 1000.0;
             }
-            
+
             // Pasamos el filtro del rastro
             for(int i=0; i < 8; i++){
                 if(posibles_movimientos[i] == true){
                     switch(i){
                         case 0:
-                            posicion_encontrada = buscar(this.MenY-1, this.MenX-1);
-                            
-                            if(posicion_encontrada)
+                            encontrado = buscar(this.MenY-1, this.MenX-1);  
+                            if(encontrado){
                                 distancias[i] = 1000.0;
+                            }else{
+                                 distancias[i] -= comprobarPasada(this.MenY-1, this.MenX-1);
+                            }
                             break;
                         case 1:
-                            posicion_encontrada = buscar(this.MenY-1, this.MenX);
+                            encontrado = buscar(this.MenY-1, this.MenX);
                             
-                            if(posicion_encontrada)
+                             if(encontrado){
                                 distancias[i] = 1000.0;
+                            }else{
+                                 distancias[i] -= comprobarPasada(this.MenY-1, this.MenX);
+                            }
                             break;
                         case 2:
-                            posicion_encontrada = buscar(this.MenY-1, this.MenX+1);
+                            encontrado = buscar(this.MenY-1, this.MenX+1);
                             
-                            if(posicion_encontrada)
+                            if(encontrado){
                                 distancias[i] = 1000.0;
+                            }else{
+                                   distancias[i] -= comprobarPasada(this.MenY-1, this.MenX+1);
+                            }
                             break;
                         case 3:
-                            posicion_encontrada = buscar(this.MenY, this.MenX-1);
+                            encontrado = buscar(this.MenY, this.MenX-1);
                             
-                            if(posicion_encontrada)
+                          if(encontrado){
                                 distancias[i] = 1000.0;
+                            }else{
+                                  distancias[i] -= comprobarPasada(this.MenY, this.MenX-1);
+                            }
                             break;
                         case 4:
-                            posicion_encontrada = buscar(this.MenY, this.MenX+1);
+                            encontrado = buscar(this.MenY, this.MenX+1);
                             
-                            if(posicion_encontrada)
+                            if(encontrado){
                                 distancias[i] = 1000.0;
+                            }else{
+                                distancias[i] -= comprobarPasada(this.MenY, this.MenX+1);
+                            }
                             break;
                         case 5:
-                            posicion_encontrada = buscar(this.MenY+1, this.MenX-1);
+                            encontrado = buscar(this.MenY+1, this.MenX-1);
                             
-                            if(posicion_encontrada)
+                            if(encontrado){
                                 distancias[i] = 1000.0;
+                            }else{
+                                  distancias[i] -= comprobarPasada(this.MenY+1, this.MenX-1);
+                            }
                             break;
                         case 6:
-                            posicion_encontrada = buscar(this.MenY+1, this.MenX);
+                            encontrado = buscar(this.MenY+1, this.MenX);
                             
-                            if(posicion_encontrada)
+                             if(encontrado){
                                 distancias[i] = 1000.0;
+                            }else{
+                                 distancias[i] -= comprobarPasada(this.MenY+1, this.MenX);
+                            }
                             break;
                         case 7:
-                            posicion_encontrada = buscar(this.MenY+1, this.MenX+1);
+                            encontrado = buscar(this.MenY+1, this.MenX+1);
                             
-                            if(posicion_encontrada)
+                             if(encontrado){
                                 distancias[i] = 1000.0;
+                            }else{
+                                 distancias[i] -= comprobarPasada(this.MenY+1, this.MenX+1);
+                            }
                             break;
                     }
                 }
@@ -1273,9 +1304,9 @@ public class Agente extends SingleAgent {
             System.out.println("Y = " + Rastro.get(i).getKey() + " X = " + Rastro.get(i).getValue());
         }
     */
-       
-       
-        for(int i = 0; i < Rastro.size()-1; i++){
+    int v;
+    if(Rastro.size() < 125){  v = 0; }else{ v = Rastro.size()-20;};
+    for(int i = v; i < Rastro.size()-1; i++){
             
             for (int j = i+1; j < (Rastro.size()); j++){
                 comprobados.add(i);
