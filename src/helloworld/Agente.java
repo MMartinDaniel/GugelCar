@@ -149,18 +149,6 @@ public class Agente extends SingleAgent {
         login();
         refuel();
         
-        /*boolean exit = false;
-
-        
-        //while(!objetivo()){
-        for (int i = 0;i<100;i++){
-              // if(i % 20 == 0){ refuel();
-                System.out.println(availableMovements());
-                makeMove(followScanner(availableMovements()));
-               };
-        //}
-       */
-        
         String nextMove = estrategia();
         
         makeMove(nextMove);
@@ -168,60 +156,13 @@ public class Agente extends SingleAgent {
         while(!this.objetivo()){
             nextMove = estrategia();
             makeMove(nextMove);
-            this.verMapaCoche(20,20);
+            this.verMapaCoche(50,50);
         }
-        this.verMapaCoche(20,20);
-        /*
-        makeMove("moveN");
-        
-        System.out.println("El Sur tiene= " + this.getS());
-        
-        makeMove("moveN");
-        makeMove("moveN");
-        makeMove("moveN");
-        makeMove("moveS");
-        makeMove("moveS");
-        makeMove("moveN");
-        makeMove("moveN");
-        makeMove("moveS");
-        makeMove("moveS");
-        makeMove("moveN");
-        makeMove("moveN");
-        makeMove("moveS");
-        makeMove("moveS");
-        makeMove("moveS");
-        makeMove("moveS");
-        makeMove("moveS");
-        makeMove("moveN");
-        makeMove("moveN");
-        makeMove("moveN");
-        makeMove("moveN");
-        makeMove("moveS");
-        makeMove("moveS");
-        */
-      
-       
+        this.verMapaCoche(300,300);
+            
         logout();    
         generarMapaTraza();
-        
-        //this.verMapaCoche(30,30);
-         // this.verMapa(151,151);
-
-        
-        /*
-        String [] array = null;
-        int [] arrayInt = null;
-        try {
-            array = message.getString("radar").split(",");
-        } catch (JSONException ex) {
-            Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        for (int i = 0; i< array.length; i++){
-             arrayInt[i] = Integer.getInteger(array[i]);
-        }
-                        
-        int [][] matriz = transform(arrayInt, 5);
-        */
+       
 }
     
 /******************************************************************************
@@ -239,10 +180,7 @@ public class Agente extends SingleAgent {
         
         JSONObject obj = null;
         try {
-            //System.out.println("Recibiendo Traza");
             ACLMessage inbox = this.receiveACLMessage();
-            //System.out.println("Recibido mensaje " +inbox.getContent()+ " de "
-                    //+inbox.getSender().getLocalName());
             obj = new JSONObject(inbox.getContent());
             
              if(obj.has("result") && !obj.get("result").equals("CRASHED") 
@@ -289,7 +227,7 @@ public class Agente extends SingleAgent {
                 aux++;
             }
         }
-        
+        /*
         // Mostramos los datos proporcionados por los sensores
         System.out.println("Los datos recibidos son: ");
         System.out.println("\n Radar: ");
@@ -306,6 +244,7 @@ public class Agente extends SingleAgent {
         
         System.out.println("\n Battery: ");
         System.out.println(this.nivelBateria);
+        */
     }
     
 
@@ -397,7 +336,7 @@ public class Agente extends SingleAgent {
         
         try {
             jsonLogin.put("command", "login");
-            jsonLogin.put("world", "map1");
+            jsonLogin.put("world", "map10");
             jsonLogin.put("radar", "agentep40");
             jsonLogin.put("scanner", "agentep40");
             jsonLogin.put("battery", "agentep40"); 
@@ -407,7 +346,6 @@ public class Agente extends SingleAgent {
         }
 
         outbox.setContent(jsonLogin.toString());
-        //System.out.println(jsonLogin.toString());
         this.send(outbox);
        
         JSONObject obj = this.getMessage();
@@ -417,8 +355,6 @@ public class Agente extends SingleAgent {
         }catch (JSONException ex) {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        //System.out.println("Login Key: " + loginKey);
         return !"".equals(this.loginKey);
         
     };
@@ -443,8 +379,6 @@ public class Agente extends SingleAgent {
         //System.out.println(getMessage());
         return true;  
     };
-
-
     
     /**
      * @author Nacho
@@ -471,14 +405,10 @@ public class Agente extends SingleAgent {
         String respuesta = message.toString();
         Parseo(respuesta);
         
-        //Actualizacion de memoria pegamos en memoria la nueva traza del escaner
-        //System.out.println("ME HE MOVIDO");
-        
+        //Actualizacion de memoria pegamos en memoria la nueva traza del escaner        
         this.pasos--;
         
-        this.actuMapa(movementCommand); 
-        //this.Autorefuel();
-        
+        this.actuMapa(movementCommand);         
         return respuesta;
     };
     
@@ -534,52 +464,11 @@ public class Agente extends SingleAgent {
             }else if( posY == 2){ nextMove = "moveS";
             }else if( posY == 3){ nextMove = "moveSE";}    
         }
-        /*
         
-        double n = lecturaScanner[1][2];
-        double ne = lecturaScanner[1][3];
-        double e = lecturaScanner[2][3];
-        double se = lecturaScanner[3][3];
-        double s = lecturaScanner[3][2];
-        double so = lecturaScanner[3][1];
-        double o = lecturaScanner[2][1];
-        double no = lecturaScanner[1][1];
-        
-        if(n <= ne && n <= e && n <= se && n <= s && n <= so && n <= o && n <= no){
-            nextMove = "moveN";
-        }else if(ne <= n && ne <= e && ne <= se && ne <= s && ne <= so && ne <= o && ne <= no){
-            nextMove = "moveNE";
-        }else if(e <= n && e <= ne && e <= se && e <= s && e <= so && e <= o && e <= no){
-            nextMove = "moveE";
-        }else if(se <= n && se <= ne && se <= e && se <= s && se <= so && se <= o && se <= no){
-            nextMove = "moveSE";
-        }else if(s <= n && s <= ne && s <= e && s <= se && s <= so && s <= o && s <= no){
-            nextMove = "moveS";
-        }else if(so <= n && so <= ne && so <= e && so <= se && so <= s && so <= o && so <= no){
-            nextMove = "moveSW";
-        }else if(o <= n && o <= ne && o <= e && o <= se && o <= so && o <= s && o <= no){
-            nextMove = "moveW";
-        }else if(no <= n && no <= ne && no <= e && no <= se && no <= so && no <= o && no <= s){
-            nextMove = "moveNW";
-        }
-      */
-        //System.out.println("NEXT MOVE:" + nextMove);
        return nextMove;
     }
     
-    /*
-    posiciones array
-    n 12
-    ne 13
-    e 23
-    se 33
-    s 32
-    so 31
-    o 21
-    no 11  
-    */
-       
-    public int TraducirPosicion(int coordenada_coche, int indice_radar){
+     public int TraducirPosicion(int coordenada_coche, int indice_radar){
         int aux = coordenada_coche;
         
         switch(indice_radar){
@@ -599,7 +488,6 @@ public class Agente extends SingleAgent {
     /**
     * @author Daniel
     */
-    
     
         public String availableMovements(){
             int posX;
@@ -629,9 +517,7 @@ public class Agente extends SingleAgent {
 
             for (int i = 1; i <= 3; i++) {
                 for (int j = 1; j <= 3; j++) {
-                    //System.out.print(lecturaRadar[i][j]);
                 }
-                //System.out.println("");
            }
             
            switch(tryDirection){
@@ -911,7 +797,7 @@ public class Agente extends SingleAgent {
             for(int j=rastro.size()-1; j > rastro.size()-126 && !encontrado; j--){
                 Posicion p = rastro.get(j);
                 if(p.x == x && p.y == y && p.num_veces >= 2){
-                    System.out.println("Ya hemos pasado por " + x + "," + y + " al menos 2 veces. La eliminamos");
+                    //System.out.println("Ya hemos pasado por " + x + "," + y + " al menos 2 veces. La eliminamos");
                     encontrado = true;
                 }
             }
@@ -921,7 +807,7 @@ public class Agente extends SingleAgent {
                 Posicion p = rastro.get(j);
 
                 if(p.x == x && p.y == y && p.num_veces >= 5){
-                    System.out.println("Ya hemos pasado por " + x + "," + y + " al menos 5 veces. La eliminamos");
+                    //System.out.println("Ya hemos pasado por " + x + "," + y + " al menos 5 veces. La eliminamos");
                     encontrado = true;
                 }
             }
@@ -938,7 +824,10 @@ public class Agente extends SingleAgent {
         return 0;
     }
     
-    
+    /**
+     * @author Ruben, Dani, Nacho
+     * @return 
+     */
     public String estrategia() {
         
         if(this.pasos == 1)
@@ -1010,7 +899,7 @@ public class Agente extends SingleAgent {
                 for(int j=1; j<4; j++){
                     // No tenemos en cuenta la posicion donde esta el coche: lecturaRadar[2][2]
                     if(i != 2 || j != 2){
-                        System.out.println("Lectura radar: " + lecturaRadar[i][j]);
+                        //System.out.println("Lectura radar: " + lecturaRadar[i][j]);
                         if(lecturaRadar[i][j] == 0)
                             posibles_movimientos[pointer] = true;
                         else
@@ -1122,9 +1011,9 @@ public class Agente extends SingleAgent {
                 }
             }
             
-            for(int i=0; i < 8; i++)
+            /*for(int i=0; i < 8; i++)
                 System.out.println("Distancia " + i + ": " + distancias[i]);
-            
+            */
             double smaller = distancias[0];
             int index = 0;
             
@@ -1263,13 +1152,6 @@ public class Agente extends SingleAgent {
             rastro.set(index, new_new_posicion);
         }
         
-        /* OUT
-        System.out.println("Rastro contiene: ");
-        
-        for(Posicion p : rastro){
-            p.out();
-        }*/
-        
         // FIN RUBEN
         
         //Agrego la nueva informacion a la memoria
@@ -1298,12 +1180,7 @@ public class Agente extends SingleAgent {
        comprobados = new ArrayList<Integer>();
        
        boolean comprobado = false;
-    
-    /*     
-        for(int i = 0; i < Rastro.size(); i++){
-            System.out.println("Y = " + Rastro.get(i).getKey() + " X = " + Rastro.get(i).getValue());
-        }
-    */
+   
     int v;
     if(Rastro.size() < 125){  v = 0; }else{ v = Rastro.size()-20;};
     for(int i = v; i < Rastro.size()-1; i++){
