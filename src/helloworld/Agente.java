@@ -29,6 +29,18 @@ import javafx.util.Pair;
  * @author Dani
  */
 public class Agente extends SingleAgent {
+    
+    
+    /*
+    *CONFIGURACIÓN DEL AGENTE Y MAPA
+    ***************************************************************************
+    */
+    public static final String NOMBRE_AGENTE = "agentep99";
+    public static final String MAPA = "map9";
+      
+    /*
+    ***************************************************************************
+    */
     private String loginKey;
     private int[][] lecturaRadar;
     private double[][] lecturaScanner;
@@ -336,10 +348,10 @@ public class Agente extends SingleAgent {
         
         try {
             jsonLogin.put("command", "login");
-            jsonLogin.put("world", "map10");
-            jsonLogin.put("radar", "agentep40");
-            jsonLogin.put("scanner", "agentep40");
-            jsonLogin.put("battery", "agentep40"); 
+            jsonLogin.put("world", MAPA);
+            jsonLogin.put("radar", NOMBRE_AGENTE);
+            jsonLogin.put("scanner", NOMBRE_AGENTE);
+            jsonLogin.put("battery", NOMBRE_AGENTE); 
             
         } catch (JSONException ex) {
             Logger.getLogger(Agente.class.getName()).log(Level.SEVERE, null, ex);
