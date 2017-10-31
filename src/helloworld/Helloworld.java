@@ -5,11 +5,8 @@
  */
 package helloworld;
 
-import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.AgentsConnection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *

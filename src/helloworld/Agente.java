@@ -1,28 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package helloworld;
 
 import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.SingleAgent;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jdk.nashorn.internal.parser.JSONParser;
-import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import com.eclipsesource.json.*;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import javafx.util.Pair;
-
 
 /**
  *
@@ -30,15 +20,15 @@ import javafx.util.Pair;
  */
 public class Agente extends SingleAgent {
     
-    
-    /*
+    /**************************************************************************
     *CONFIGURACIÓN DEL AGENTE Y MAPA
     ***************************************************************************
     */
     public static final String NOMBRE_AGENTE = "agentep99";
     public static final String MAPA = "map9";
-      
     /*
+    ***************************************************************************
+    
     ***************************************************************************
     */
     private String loginKey;
@@ -53,70 +43,23 @@ public class Agente extends SingleAgent {
     private int MenY;
     private int MenX;
     private ArrayList<Pair> Rastro;
-    
-    //Pasos antes de recargar
-    private int Pasos;
+    private int Pasos; //Pasos antes de recargar
     
     
-    // RUBEN
-    int pasos;
-    String [] last_moves;
-    int last_move_pointer;
-    
-    class Posicion {
-        int x;
-        int y;
-        int num_veces;
-
-        Posicion(int new_x, int new_y){
-            this.x = new_x;
-            this.y = new_y;
-            this.num_veces = 1;
-        }
-
-        Posicion(int new_x, int new_y, int new_num_veces){
-            this.x = new_x;
-            this.y = new_y;
-            this.num_veces = new_num_veces;
-        }
-
-        public void out(){
-            System.out.println(" X: " + this.x + "\n Y: " + this.y + "\n Num: " + this.num_veces + "\n");
-        }
-    };
-    
+    private int pasos;
+    private String [] last_moves;
+    private int last_move_pointer;
     private ArrayList<Posicion> rastro;
-    
-    
-    //IMPLEMENTADO CLASE MEMORIA
-    //Variables para visual
-    
-        /*
-        30 negro
-        31 rojo
-        32 verde
-        33 amarillo
-        34 azul
-        35 magenta
-        36 cyan
-        37 blanco
-        40 fondo negro
-        41 fondo rojo
-        42 fondo verde
-        43 fondo amarillo
-        44 fondo azul
-        45 fondo magenta
-        46 fondo cyan
-        47 fondo blanco
-        */
-        
-        private String ColorMenLibre ="\u001B[40m"; //40
-        private String ColorSinOstaculos =  "\u001B[47m";//47
-        private String ColorObstaculo= "\u001B[41m";//41
-        private String ColorCoche= "\u001B[45m";//45
-        private String ColorObjetivo= "\u001B[42m";//42
-        private String ColorRecorrido= "\u001B[46m";//46
+    private String ColorMenLibre ="\u001B[40m"; //40
+    private String ColorSinOstaculos =  "\u001B[47m";//47
+    private String ColorObstaculo= "\u001B[41m";//41
+    private String ColorCoche= "\u001B[45m";//45
+    private String ColorObjetivo= "\u001B[42m";//42
+    private String ColorRecorrido= "\u001B[46m";//46
 
+/******************************************************************************
+ * Constructores
+ ******************************************************************************/
 
     public Agente() throws Exception {
         super(null);
@@ -153,7 +96,11 @@ public class Agente extends SingleAgent {
         this.rastro = new ArrayList();
     }
     
-    //public void init();
+    
+/******************************************************************************
+ 
+ ******************************************************************************/    
+    
     @Override
     public void execute(){
 
@@ -171,22 +118,24 @@ public class Agente extends SingleAgent {
             this.verMapaCoche(50,50);
         }
         this.verMapaCoche(300,300);
-            
-        logout();    
+        
         generarMapaTraza();
+        logout();    
+        
        
 }
     
 /******************************************************************************
  * Funciones
  ******************************************************************************/
-//git
     @Override
     public AgentID getAid() {
         return super.getAid(); //To change body of generated methods, choose Tools | Templates.
     }  
     /**
     * @autor Daniel, Nacho
+    * @params 
+    * @return JSON obj con el mensaje recibido
     */
     public JSONObject getMessage(){
         
@@ -217,8 +166,11 @@ public class Agente extends SingleAgent {
         
         return obj;
     }
+    
     /**
     * @author Ruben
+    * @param String respuesta, el mensaje recibido. 
+    * @return 
     */
     private void Parseo(String respuesta){
         // Parseamos el String original y lo guardamos en un objeto
@@ -239,29 +191,8 @@ public class Agente extends SingleAgent {
                 aux++;
             }
         }
-        /*
-        // Mostramos los datos proporcionados por los sensores
-        System.out.println("Los datos recibidos son: ");
-        System.out.println("\n Radar: ");
-        
-        for(int i=0; i < 5; i++)
-            System.out.println(this.lecturaRadar[i][0] + " " + this.lecturaRadar[i][1] + " " + 
-                    this.lecturaRadar[i][2] + " " + this.lecturaRadar[i][3] + " " + this.lecturaRadar[i][4]);
-        
-        System.out.println("\n Scanner: ");
-        
-        for(int i=0; i < 5; i++)
-            System.out.println(this.lecturaScanner[i][0] + " " + this.lecturaScanner[i][1] + " " + 
-                    this.lecturaScanner[i][2] + " " + this.lecturaScanner[i][3] + " " + this.lecturaScanner[i][4]);
-        
-        System.out.println("\n Battery: ");
-        System.out.println(this.nivelBateria);
-        */
     }
     
-
-    
-
     /**
     * @author Nacho
     */
@@ -290,9 +221,9 @@ public class Agente extends SingleAgent {
         Parseo(respuesta);
     }
     
-    /**
-     * @author ¿?¿?
-     */
+    /*
+    * @author Nacho, copia del profesor...
+    */
     public void generarMapaTraza(){
           try {
            
@@ -317,20 +248,6 @@ public class Agente extends SingleAgent {
          }
       }
     
-    /**
-     * @author ¿?¿?
-     */
-    static int[][] transform(int[] arr, int N) {
-      int M = (arr.length + N - 1) / N;
-      int[][] mat = new int[M][];
-      int start = 0;
-      for (int r = 0; r < M; r++) {
-          int L = Math.min(N, arr.length - start);
-          mat[r] = java.util.Arrays.copyOfRange(arr, start, start + L);
-          start += L;
-      }
-      return mat;
-  }
 
     /**
     * @author Dani
@@ -393,7 +310,9 @@ public class Agente extends SingleAgent {
     };
     
     /**
-     * @author Nacho
+     * @author Nacho, Ruben, Grego
+     * @param movementCommand, el movimiento que se va a realizar. 
+     * @return respuesta, el mensaje de respuesta del servidor. 
      */
     public String makeMove(String movementCommand){
         
@@ -426,6 +345,9 @@ public class Agente extends SingleAgent {
     
     /**
      * @author Nacho
+     * @params String direccion, la dirección de la que se quiere obtener 
+     * la lectura del radar.
+     * @return lectura del radar. 
      */
     public int getRadar (String direccion){
         switch (direccion){
@@ -448,6 +370,8 @@ public class Agente extends SingleAgent {
     
     /**
      * @author Nacho, Dani
+     * @param posibleMovs
+     * @return nextMove, el proximo movimiento que se va a realizar. 
      */
     
     public String followScanner(String posibleMovs){
@@ -480,7 +404,13 @@ public class Agente extends SingleAgent {
        return nextMove;
     }
     
-     public int TraducirPosicion(int coordenada_coche, int indice_radar){
+     /**
+     * @author Nacho, Dani
+     * @param coordenada_coche
+     * @param indice_radar
+     * @return aux, posicion del coche relativa al mapa. 
+     */
+    public int TraducirPosicion(int coordenada_coche, int indice_radar){
         int aux = coordenada_coche;
         
         switch(indice_radar){
@@ -499,9 +429,9 @@ public class Agente extends SingleAgent {
     
     /**
     * @author Daniel
+    * @return availables, los movimientos que se pueden realizar.
     */
-    
-        public String availableMovements(){
+    public String availableMovements(){
             int posX;
             int posY;
             
@@ -525,6 +455,11 @@ public class Agente extends SingleAgent {
           return availables;
     };
     
+    /**
+    * @author Daniel
+     * @param tryDirection
+     * @return boolean si hay obstaculo en la dirección consultada. 
+    */
     public boolean checkObstacle( String tryDirection ){
 
             for (int i = 1; i <= 3; i++) {
@@ -556,116 +491,19 @@ public class Agente extends SingleAgent {
     
     /**
      * @author nacho
-     * @return 
+     * @return boolean si la posición actual del coche es el objetivo. 
      */
      public boolean objetivo(){
-        if(getRadar("coche") == 2){
-            return true;
-        }else{
-            return false;
-        }
-        
+        return getRadar("coche") == 2;
     }
-     
-
-     
-    /*
-     * @author grego
-     */
-     
-    private void Autorefuel(){
-        if(Pasos > 90){
-            this.refuel();
-            Pasos = 0;
-        }
-    }
-    
-     /*
-     *---------------------------------------------------------------------------
-     *Getter de consulta a nuestro alrededor en el mapa
-     *---------------------------------------------------------------------------
-     */
-    
-    /*
-    * @author grego
-    */
-    public int getN(){
-        int auxX = this.MenX;
-        int auxY = this.MenY - 1;
-        return Mapa.get(auxY).get(auxX);
-    }
-    /*
-    * @author grego
-    */
-    public int getS(){
-        int auxX = this.MenX;
-        int auxY = this.MenY + 1;
-        return Mapa.get(auxY).get(auxX);
-    }
-    
-    /*
-    * @author grego
-    */
-    public int getE(){
-        int auxX = this.MenX + 1;
-        int auxY = this.MenY;
-        return Mapa.get(auxY).get(auxX);
-    }
-    
-    /*
-    * @author grego
-    */
-    public int getW(){
-        int auxX = this.MenX - 1;
-        int auxY = this.MenY;
-        return Mapa.get(auxY).get(auxX);
-    }
-    /*
-    * @author grego
-    */
-    public int getNE(){
-        int auxX = this.MenX + 1;
-        int auxY = this.MenY - 1;
-        return Mapa.get(auxY).get(auxX);
-    }
-    
-    /*
-    * @author grego
-    */
-    public int getNW(){
-        int auxX = this.MenX - 1;
-        int auxY = this.MenY - 1;
-        return Mapa.get(auxY).get(auxX);
-    }
-    
-    /*
-    * @author grego
-    */
-    public int getSE(){
-        int auxX = this.MenX + 1;
-        int auxY = this.MenY + 1;
-        return Mapa.get(auxY).get(auxX);
-    }
-
-    /*
-    * @author grego
-    */
-    public int getSW(){
-        int auxX = this.MenX - 1;
-        int auxY = this.MenY + 1;
-        return Mapa.get(auxY).get(auxX);
-    }    
-    
-     
      
      /*
      *---------------------------------------------------------------------------
      *FUNCIONES DE LA MEMORIA
      *---------------------------------------------------------------------------
      */
-     
     
-         //IMPLEMENTADO CLASE MEMORIA
+    //IMPLEMENTADO CLASE MEMORIA
     /**
     * @author grego
     */
@@ -751,7 +589,7 @@ public class Agente extends SingleAgent {
      
      
     /**
-    * @author grego
+    * @author grego, kudry
     *
     *Visisualiza el mapa desde el coche
     *@pre para obtener un dato real usar la funcion con numeros impares
@@ -802,39 +640,6 @@ public class Agente extends SingleAgent {
 
     }
     
-    public boolean buscar(int x, int y){
-        boolean encontrado = false;
-
-        if(rastro.size() > 125){
-            for(int j=rastro.size()-1; j > rastro.size()-126 && !encontrado; j--){
-                Posicion p = rastro.get(j);
-                if(p.x == x && p.y == y && p.num_veces >= 2){
-                    //System.out.println("Ya hemos pasado por " + x + "," + y + " al menos 2 veces. La eliminamos");
-                    encontrado = true;
-                }
-            }
-        }
-        else {
-            for(int j=0; j < rastro.size() && !encontrado; j++){
-                Posicion p = rastro.get(j);
-
-                if(p.x == x && p.y == y && p.num_veces >= 5){
-                    //System.out.println("Ya hemos pasado por " + x + "," + y + " al menos 5 veces. La eliminamos");
-                    encontrado = true;
-                }
-            }
-        }
-        
-        return encontrado;
-    }
-    
-    
-    public double comprobarPasada(int y, int x){
-        if(Mapa.get(y).get(x) == 0){
-            return 5.0;
-        }
-        return 0;
-    }
     
     /**
      * @author Ruben, Dani, Nacho
@@ -1067,11 +872,8 @@ public class Agente extends SingleAgent {
         return nextMove;
     }
     
-
-    
     /**
-     *
-     * @author grego, kudry
+     * @author grego, kudry, rubén.
      * @param movementCommand
      */
     public void actuMapa(String movementCommand){
@@ -1079,9 +881,6 @@ public class Agente extends SingleAgent {
         //Contadores para la matriz del radar
         int conRadarI = 0;
         int conRadarJ = 0;
-        
-
-        
         
         //Ajusto mi posicion en funcion del movimiento
         if (movementCommand.equals("moveW") ){
@@ -1126,7 +925,6 @@ public class Agente extends SingleAgent {
         Pair PosicionRastro = new Pair(MenY,MenX);
         Rastro.add(PosicionRastro);
         
-        // RUBEN
         
         Posicion new_posicion = new Posicion(this.MenY, this.MenX);
 
@@ -1236,4 +1034,179 @@ public class Agente extends SingleAgent {
         
     }
 
+    
+    
+    /**
+     * @author
+     * @param x
+     * @param y
+     * @return 
+     */
+    public boolean buscar(int x, int y){
+        boolean encontrado = false;
+        Posicion p = new Posicion();
+        if(rastro.size() > 125){
+            for(int j=rastro.size()-1; j > rastro.size()-126 && !encontrado; j--){
+               
+                        p = rastro.get(j);
+                if(p.x == x && p.y == y && p.num_veces >= 2){
+                    //System.out.println("Ya hemos pasado por " + x + "," + y + " al menos 2 veces. La eliminamos");
+                    encontrado = true;
+                }
+            }
+        }
+        else {
+            for(int j=0; j < rastro.size() && !encontrado; j++){
+                p = rastro.get(j);
+
+                if(p.x == x && p.y == y && p.num_veces >= 5){
+                    //System.out.println("Ya hemos pasado por " + x + "," + y + " al menos 5 veces. La eliminamos");
+                    encontrado = true;
+                }
+            }
+        }
+        
+        return encontrado;
+    }
+    
+    
+    /**
+     * @author
+     * @param y
+     * @param x
+     * @return 
+     */
+    public double comprobarPasada(int y, int x){
+        if(Mapa.get(y).get(x) == 0){
+            return 5.0;
+        }
+        return 0;
+    }
 }
+
+/******************************************************************************
+ *************************** Código extra no utilizado ************************
+ ******************************************************************************/
+
+/*
+     *--------------------------------------------------------------------------
+     *Getter de consulta a nuestro alrededor en el mapa
+     *--------------------------------------------------------------------------
+     * /
+    
+    
+    * @author grego
+    * /
+    public int getN(){
+        int auxX = this.MenX;
+        int auxY = this.MenY - 1;
+        return Mapa.get(auxY).get(auxX);
+    }
+    /*
+    * @author grego
+    * /
+    public int getS(){
+        int auxX = this.MenX;
+        int auxY = this.MenY + 1;
+        return Mapa.get(auxY).get(auxX);
+    }
+    
+    /*
+    * @author grego
+    * /
+    public int getE(){
+        int auxX = this.MenX + 1;
+        int auxY = this.MenY;
+        return Mapa.get(auxY).get(auxX);
+    }
+    
+    /*
+    * @author grego
+    * /
+    public int getW(){
+        int auxX = this.MenX - 1;
+        int auxY = this.MenY;
+        return Mapa.get(auxY).get(auxX);
+    }
+    /*
+    * @author grego
+    * /
+    public int getNE(){
+        int auxX = this.MenX + 1;
+        int auxY = this.MenY - 1;
+        return Mapa.get(auxY).get(auxX);
+    }
+    
+    /*
+    * @author grego
+    * /
+    public int getNW(){
+        int auxX = this.MenX - 1;
+        int auxY = this.MenY - 1;
+        return Mapa.get(auxY).get(auxX);
+    }
+    
+    /*
+    * @author grego
+    * /
+    public int getSE(){
+        int auxX = this.MenX + 1;
+        int auxY = this.MenY + 1;
+        return Mapa.get(auxY).get(auxX);
+    }
+
+    /*
+    * @author grego
+    * /
+    public int getSW(){
+        int auxX = this.MenX - 1;
+        int auxY = this.MenY + 1;
+        return Mapa.get(auxY).get(auxX);
+    }  
+*/
+
+/*
+     * @author grego
+     * /
+     
+    private void Autorefuel(){
+        if(Pasos > 90){
+            this.refuel();
+            Pasos = 0;
+        }
+    }*/
+
+
+/*
+        // Mostramos los datos proporcionados por los sensores
+        System.out.println("Los datos recibidos son: ");
+        System.out.println("\n Radar: ");
+        
+        for(int i=0; i < 5; i++)
+            System.out.println(this.lecturaRadar[i][0] + " " + this.lecturaRadar[i][1] + " " + 
+                    this.lecturaRadar[i][2] + " " + this.lecturaRadar[i][3] + " " + this.lecturaRadar[i][4]);
+        
+        System.out.println("\n Scanner: ");
+        
+        for(int i=0; i < 5; i++)
+            System.out.println(this.lecturaScanner[i][0] + " " + this.lecturaScanner[i][1] + " " + 
+                    this.lecturaScanner[i][2] + " " + this.lecturaScanner[i][3] + " " + this.lecturaScanner[i][4]);
+        
+        System.out.println("\n Battery: ");
+        System.out.println(this.nivelBateria);
+
+        */
+    
+
+/*static int[][] transform(int[] arr, int N) {
+      int M = (arr.length + N - 1) / N;
+      int[][] mat = new int[M][];
+      int start = 0;
+      for (int r = 0; r < M; r++) {
+          int L = Math.min(N, arr.length - start);
+          mat[r] = java.util.Arrays.copyOfRange(arr, start, start + L);
+          start += L;
+      }
+      return mat;
+  }*/
+     
